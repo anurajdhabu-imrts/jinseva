@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd D:/Projects/alqurar-ai && find ./apps -type f \\\\\\( -name \"*role*\" -o -name \"*permission*\" -o -name \"*user*\" -o -name \"*auth*\" \\\\\\) ! -path \"*/node_modules/*\" ! -path \"*/.venv/*\" | sort)",
+      "Read(//d/Projects/alqurar-ai/**)",
+      "Bash(xargs grep -l \"require_permission\\\\|Can\\\\|usePermissions\")",
+      "Bash(xargs grep -l \"hasPermission\\\\|useHasPermission\")",
+      "Bash(xargs grep \"useHasPermission\\\\|useUserPermissions\")",
+      "Bash(Get-ChildItem -Path \"D:\\\\Projects\\\\TempleManagement\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\Projects\\\\TempleManagement\\\\apps\\\\frontend\\\\src\" -Recurse -File | Select-Object -ExpandProperty FullName | Where-Object { $_ -notmatch 'node_modules' })",
+      "Bash(Get-ChildItem -Recurse src -File)",
+      "PowerShell(Get-ChildItem -Recurse \"d:\\\\Projects\\\\TempleManagement\\\\apps\\\\backend\\\\src\" -File -Force | ForEach-Object { $_.FullName })",
+      "PowerShell($dirs = Get-ChildItem -Recurse \"d:\\\\Projects\\\\TempleManagement\\\\apps\\\\backend\\\\src\" -Directory; foreach\\($d in $dirs\\){ Write-Output \\(\"DIR: \" + $d.FullName\\); Get-ChildItem $d.FullName -File | ForEach-Object { Write-Output \\(\"   \" + $_.Name\\) } })",
+      "PowerShell(Get-ChildItem \"d:\\\\Projects\\\\TempleManagement\\\\apps\\\\backend\" -File -Force | ForEach-Object { $_.Name }; Write-Output \"--- root ---\"; Get-ChildItem \"d:\\\\Projects\\\\TempleManagement\" -File -Force | ForEach-Object { $_.Name })",
+      "PowerShell(Get-ChildItem -Recurse \"d:\\\\Projects\\\\TempleManagement\\\\apps\\\\frontend\\\\src\\\\dashboard\\\\pages\\\\settings\" -File | ForEach-Object { $_.FullName }; Write-Output \"--- services ---\"; Get-ChildItem -Recurse \"d:\\\\Projects\\\\TempleManagement\\\\packages\\\\shared\\\\services\" -File -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem \"d:\\\\Projects\\\\TempleManagement\\\\packages\\\\shared\\\\data\" -File | ForEach-Object { $_.Name })",
+      "PowerShell(Set-Location \"d:\\\\Projects\\\\TempleManagement\\\\apps\\\\backend\"; $env:JWT_SECRET=\"test-secret\"; $env:MONGO_URI=\"mongodb://localhost:27017/test\"; node --input-type=module -e \"import\\('./src/app.js'\\).then\\(\\(\\) => { console.log\\('APP IMPORT OK'\\); process.exit\\(0\\); }\\).catch\\(e => { console.error\\('IMPORT FAIL:', e\\); process.exit\\(1\\); }\\);\")",
+      "Bash(xargs grep -l \"useAuth\\\\|login\")",
+      "PowerShell($py = Get-Command python -ErrorAction SilentlyContinue; if \\($py\\) { \"python: $\\($py.Source\\)\"; python --version } else { \"python: NOT FOUND\" }; $pg = Get-Command psql -ErrorAction SilentlyContinue; if \\($pg\\) { \"psql: $\\($pg.Source\\)\" } else { \"psql: not on PATH\" }; try { $c = Test-NetConnection -ComputerName localhost -Port 5432 -WarningAction SilentlyContinue; \"port 5432 open: $\\($c.TcpTestSucceeded\\)\" } catch { \"port test failed\" })",
+      "PowerShell(\"removed apps/backend \\(Node\\)\")"
+    ]
+  }
+}

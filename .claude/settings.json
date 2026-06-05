@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json.schemastore.org/claude-settings",
+  "description": "Claude Code agent config for the Jinalaya monorepo.",
+  "agent": {
+    "rulesFile": "../CLAUDE.md",
+    "primaryEntrypoints": [
+      "apps/frontend/src",
+      "apps/backend/src",
+      "packages/shared"
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Grep",
+      "Glob",
+      "PowerShell(python -m pip install --disable-pip-version-check -q -r \"d:\\\\Projects\\\\TempleManagement\\\\backend\\\\requirements.txt\")",
+      "PowerShell(if \\($?\\) { \"INSTALL OK\" } else { \"INSTALL FAILED\" })",
+      "PowerShell(Set-Location \"d:\\\\Projects\\\\TempleManagement\\\\apps\\\\backend\"; $env:PYTHONUTF8=\"1\"; python -c \"import app.main; print\\('APP IMPORT OK'\\)\"; if\\($?\\){ python seed.py })",
+      "PowerShell(\"deleted Donate.jsx\")"
+    ]
+  },
+  "indexing": {
+    "exclude": [
+      "node_modules",
+      "dist",
+      "build",
+      "coverage",
+      "graphify-out",
+      ".next",
+      ".cache"
+    ]
+  }
+}

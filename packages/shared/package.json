@@ -1,0 +1,29 @@
+{
+  "name": "@jinalaya/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared components, contexts, hooks, utils and data for the Jinalaya monorepo",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".":            "./index.js",
+    "./components/*": "./components/*.jsx",
+    "./context/*":    "./context/*.jsx",
+    "./hooks/*":      "./hooks/*.jsx",
+    "./utils/*":      "./utils/*.js",
+    "./data/*":       "./data/*.js",
+    "./services/*":   "./services/*.js"
+  },
+  "peerDependencies": {
+    "react":         "^18.2.0",
+    "react-dom":     "^18.2.0",
+    "react-router-dom": "^6.22.1"
+  },
+  "dependencies": {
+    "axios":          "^1.6.7",
+    "clsx":           "^2.1.0",
+    "framer-motion":  "^11.0.8",
+    "lucide-react":   "^0.344.0",
+    "tailwind-merge": "^2.2.1"
+  }
+}

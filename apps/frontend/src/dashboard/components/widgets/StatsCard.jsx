@@ -1,0 +1,49 @@
+import { TrendingDown, TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@utils/cn';
+
+const tones = {
+  primary: 'from-saffron-500/15 to-saffron-500/5 text-saffron-700 dark:text-saffron-400 border-saffron-500/20',
+  gold:    'from-gold-400/15 to-gold-400/5 text-gold-700 dark:text-gold-400 border-gold-500/20',
+  rose:    'from-rose-500/15 to-rose-500/5 text-rose-700 dark:text-rose-400 border-rose-500/20',
+  emerald: 'from-emerald-500/15 to-emerald-500/5 text-emerald-700 dark:text-emerald-400 border-emerald-500/20',
+  violet:  'from-violet-500/15 to-violet-500/5 text-violet-700 dark:text-violet-400 border-violet-500/20',
+  sky:     'from-sky-500/15 to-sky-500/5 text-sky-700 dark:text-sky-400 border-sky-500/20',
+};
+
+export default function StatsCard({ icon: Icon, label, value, growth, tone = 'primary', subtitle, delay = 0 }) {
+  const positive = (growth ?? 0) >= 0;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay }}
+      className="relative overflow-hidden bg-white dark:bg-neutral-900 rounded-2xl border border-sand-200/60 dark:border-neutral-800 p-5 shadow-card dark:shadow-card-dark hover:shadow-lg transition-all"
+    >
+      <div className={cn('absolute -top-12 -right-12 w-40 h-40 rounded-full bg-gradient-to-br opacity-30', tones[tone])} />
+      <div className="relative flex items-start justify-between">
+        <div>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">{label}</p>
+          <h3 className="text-2xl md:text-3xl font-serif font-bold mt-2 text-neutral-900 dark:text-white">{value}</h3>
+          {subtitle && <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{subtitle}</p>}
+          {growth !== undefined && (
+            <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium">
+              <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full',
+                positive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400'
+                         : 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400')}>
+                {positive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                {positive ? '+' : ''}{growth}%
+              </span>
+              <span className="text-neutral-400">vs last month</span>
+            </div>
+          )}
+        </div>
+        {Icon && (
+          <div className={cn('w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center border', tones[tone])}>
+            <Icon className="w-6 h-6" />
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}

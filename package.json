@@ -1,0 +1,28 @@
+{
+  "name": "jinalaya",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shree Jinalaya — full-stack Jain derasar management platform (monorepo)",
+  "workspaces": [
+    "apps/frontend",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev":              "concurrently -n frontend,backend -c yellow,green \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend":     "npm run dev -w @jinalaya/frontend",
+    "dev:backend":      "python -m uvicorn app.main:app --app-dir apps/backend --port 5000 --reload",
+    "seed:backend":     "python apps/backend/seed.py",
+    "build":             "npm run build -w @jinalaya/frontend",
+    "build:frontend":   "npm run build -w @jinalaya/frontend",
+    "lint":              "npm run lint --workspaces --if-present",
+    "clean":             "rimraf node_modules apps/*/node_modules apps/*/dist packages/*/node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "rimraf":        "^5.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm":  ">=9.0.0"
+  }
+}
