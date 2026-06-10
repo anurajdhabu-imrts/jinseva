@@ -1,20 +1,22 @@
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import Card, { CardHeader, CardBody } from '@components/Card';
-import { donationCategories } from '@data/mockData';
 import { formatCurrency } from '@utils/constants';
 
-export default function DonationCategoriesChart() {
-  const total = donationCategories.reduce((s, c) => s + c.value, 0);
+export default function DonationCategoriesChart({ data = [] }) {
+  const total = data.reduce((s, c) => s + c.value, 0);
   return (
     <Card>
       <CardHeader title="Donation Categories" subtitle="Breakdown by purpose" />
       <CardBody>
+        {data.length === 0 ? (
+          <p className="py-16 text-center text-sm text-neutral-500">No donations yet.</p>
+        ) : (
         <div className="flex flex-col md:flex-row items-center gap-4">
           <div className="relative w-48 h-48">
             <ResponsiveContainer>
               <PieChart>
-                <Pie data={donationCategories} dataKey="value" innerRadius={55} outerRadius={80} paddingAngle={3} stroke="none">
-                  {donationCategories.map((c, i) => (
+                <Pie data={data} dataKey="value" innerRadius={55} outerRadius={80} paddingAngle={3} stroke="none">
+                  {data.map((c, i) => (
                     <Cell key={i} fill={c.color} />
                   ))}
                 </Pie>
@@ -30,8 +32,8 @@ export default function DonationCategoriesChart() {
             </div>
           </div>
           <div className="flex-1 space-y-2 w-full">
-            {donationCategories.map((c) => {
-              const pct = ((c.value / total) * 100).toFixed(1);
+            {data.map((c) => {
+              const pct = total ? ((c.value / total) * 100).toFixed(1) : 0;
               return (
                 <div key={c.name} className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5">
@@ -47,6 +49,7 @@ export default function DonationCategoriesChart() {
             })}
           </div>
         </div>
+        )}
       </CardBody>
     </Card>
   );

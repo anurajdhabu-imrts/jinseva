@@ -44,14 +44,21 @@ const navGroups = [
   },
 ];
 
+// Devotees get a deliberately minimal sidebar — just their dashboard and the
+// devotee portal — even though they may hold extra view permissions (e.g.
+// events.view, which the portal's "Event Details" card relies on).
+const DEVOTEE_ROUTES = ['/dashboard', '/user'];
+
 export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const loc = useLocation();
-  const { hasPermission, hasAnyPermission } = useAuth();
+  const { user, hasPermission, hasAnyPermission } = useAuth();
+  const isDevotee = user?.roleId === 'role_devotee';
 
   const visibleGroups = navGroups
     .map((group) => ({
       ...group,
       items: group.items.filter((item) => {
+        if (isDevotee)          return DEVOTEE_ROUTES.includes(item.to);
         if (item.permission)    return hasPermission(item.permission);
         if (item.anyPermission) return hasAnyPermission(item.anyPermission);
         return true;
@@ -114,7 +121,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
                         className={cn(
                           'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative group',
                           isActive
-                            ? 'bg-gradient-to-r from-saffron-500/10 to-transparent text-saffron-700 dark:text-saffron-400'
+                            ? 'bg-jain-yellow-500 text-jain-black-900 font-semibold'
                             : 'text-neutral-600 dark:text-neutral-400 hover:bg-sand-100 dark:hover:bg-neutral-800 hover:text-saffron-700 dark:hover:text-saffron-400',
                           collapsed && 'justify-center px-2'
                         )}
@@ -122,7 +129,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
                         {isActive && (
                           <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-gradient-to-b from-saffron-500 to-maroon-600" />
                         )}
-                        <item.icon className={cn('w-5 h-5 shrink-0', isActive && 'text-saffron-600')} />
+                        <item.icon className={cn('w-5 h-5 shrink-0', isActive && 'text-jain-black-900')} />
                         {!collapsed && <span className="truncate">{item.label}</span>}
                         {!collapsed && item.badge && (
                           <span className="ml-auto px-1.5 py-0.5 text-[10px] rounded-full bg-saffron-100 text-saffron-700 dark:bg-saffron-500/20">

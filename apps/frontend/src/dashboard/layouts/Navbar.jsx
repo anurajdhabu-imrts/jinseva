@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Menu, Moon, Search, Sun, LogOut, Settings, UserCircle, Globe2, ChevronDown } from 'lucide-react';
+import { Menu, Moon, Search, Sun, LogOut, Settings, UserCircle, Globe2, ChevronDown } from 'lucide-react';
 import { useTheme } from '@context/ThemeContext';
 import { useAuth } from '@context/AuthContext';
 import Avatar from '@components/Avatar';
 import Dropdown, { DropdownItem, DropdownDivider } from '@components/Dropdown';
-import { notifications } from '@data/mockData';
+import LanguageSwitcher from '@components/LanguageSwitcher';
 
 export default function Navbar({ onMobileMenuClick }) {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
-  const unread = notifications.filter((n) => !n.read).length;
 
   return (
     <header className="sticky top-0 z-30 h-16 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-sand-200 dark:border-neutral-800">
@@ -45,9 +44,7 @@ export default function Navbar({ onMobileMenuClick }) {
 
         <div className="ml-auto flex items-center gap-1">
           {/* Language */}
-          <button className="hidden md:flex p-2 rounded-lg hover:bg-sand-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
-            <Globe2 className="w-5 h-5" />
-          </button>
+          <LanguageSwitcher />
 
           {/* Theme toggle */}
           <button
@@ -57,39 +54,6 @@ export default function Navbar({ onMobileMenuClick }) {
           >
             {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
-
-          {/* Notifications */}
-          <Dropdown
-            trigger={
-              <button className="relative p-2 rounded-lg hover:bg-sand-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
-                <Bell className="w-5 h-5" />
-                {unread > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-gradient-to-br from-saffron-500 to-maroon-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white dark:ring-neutral-950">
-                    {unread}
-                  </span>
-                )}
-              </button>
-            }
-          >
-            <div className="w-80 max-h-96 overflow-hidden">
-              <div className="px-3 py-2 flex items-center justify-between border-b border-sand-100 dark:border-neutral-800">
-                <p className="font-semibold text-sm">Notifications</p>
-                <span className="text-xs text-saffron-600 cursor-pointer hover:underline">Mark all read</span>
-              </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-sand-100 dark:divide-neutral-800">
-                {notifications.slice(0, 5).map((n) => (
-                  <div key={n.id} className="px-3 py-2.5 hover:bg-sand-50 dark:hover:bg-neutral-800/50 cursor-pointer">
-                    <p className="text-sm font-medium">{n.title}</p>
-                    <p className="text-xs text-neutral-500 mt-0.5">{n.message}</p>
-                    <p className="text-[10px] text-neutral-400 mt-1">{n.time}</p>
-                  </div>
-                ))}
-              </div>
-              <Link to="/communication" className="block px-3 py-2 text-center text-xs font-medium text-saffron-600 border-t border-sand-100 dark:border-neutral-800 hover:bg-sand-50 dark:hover:bg-neutral-800/50">
-                View all notifications
-              </Link>
-            </div>
-          </Dropdown>
 
           {/* User menu */}
           <Dropdown

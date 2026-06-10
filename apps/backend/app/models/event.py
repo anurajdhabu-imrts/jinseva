@@ -22,6 +22,8 @@ class Event(Base):
     code: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     type: Mapped[str] = mapped_column(String(60), default="Festival", nullable=False)
+    # Place / property: Jain Mandir, Gunfa, Hall, Commercial Properties.
+    category: Mapped[str] = mapped_column(String(80), default="", nullable=False)
     event_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     time: Mapped[str] = mapped_column(String(10), default="", nullable=False)
     end_time: Mapped[str] = mapped_column(String(10), default="", nullable=False)
@@ -53,6 +55,7 @@ class Event(Base):
             "id": self.code,
             "title": self.title,
             "type": self.type,
+            "category": self.category,
             "date": self.event_date.isoformat() if self.event_date else None,
             "time": self.time,
             "endTime": self.end_time,

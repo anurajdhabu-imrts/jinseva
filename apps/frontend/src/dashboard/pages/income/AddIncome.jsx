@@ -5,7 +5,7 @@ import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Input, { Select, Textarea } from '@components/Input';
 import Button from '@components/Button';
-import { INCOME_CATEGORIES, PAYMENT_METHODS } from '@utils/constants';
+import { INCOME_CATEGORIES, PAYMENT_METHODS, PROPERTY_CATEGORIES } from '@utils/constants';
 import { useToast } from '@context/ToastContext';
 import { incomeApi, apiError } from '@services/rbacService';
 
@@ -13,6 +13,7 @@ export default function AddIncome() {
   const [form, setForm] = useState({
     description: '',
     category: INCOME_CATEGORIES[0],
+    property: PROPERTY_CATEGORIES[0],
     amount: '',
     source: '',
     date: '',
@@ -34,6 +35,7 @@ export default function AddIncome() {
     try {
       await incomeApi.create({
         category: form.category,
+        property: form.property,
         description: form.description.trim(),
         source: form.source.trim(),
         amount,
@@ -71,6 +73,12 @@ export default function AddIncome() {
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 required
+              />
+              <Select
+                label="Property / Place"
+                options={PROPERTY_CATEGORIES}
+                value={form.property}
+                onChange={(e) => setForm({ ...form, property: e.target.value })}
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Select

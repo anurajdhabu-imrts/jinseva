@@ -14,6 +14,25 @@ export const formatDate = (d, opts = { day: '2-digit', month: 'short', year: 'nu
 export const formatTime = (d) =>
   new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
+// Inline SVG placeholder shown when an image fails to load (e.g. a dead URL).
+export const IMG_FALLBACK =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300">' +
+      '<rect width="100%" height="100%" fill="#f3ede2"/>' +
+      '<g fill="#c8102e" opacity="0.45"><circle cx="200" cy="118" r="34"/>' +
+      '<path d="M118 224l52-62 42 47 30-34 40 49z"/></g>' +
+      '<text x="50%" y="272" text-anchor="middle" fill="#9a8f80" font-family="sans-serif" font-size="15">Image unavailable</text>' +
+    '</svg>',
+  );
+
+// Attach to <img onError={onImgError}> to swap a broken image for the placeholder.
+export function onImgError(e) {
+  if (e.currentTarget.dataset.fallback) return; // avoid loops
+  e.currentTarget.dataset.fallback = '1';
+  e.currentTarget.src = IMG_FALLBACK;
+}
+
 export const STATUS_COLORS = {
   active: 'success',
   completed: 'success',
@@ -81,6 +100,12 @@ export const POOJA_TYPES = [
 ];
 
 export const PAYMENT_METHODS = ['UPI', 'Card', 'Cash', 'Bank Transfer', 'Cheque'];
+
+// Temple places / properties that income, donations, expenses and events are
+// all categorised by — and that reports break down by.
+export const PROPERTY_CATEGORIES = ['Jain Mandir', 'Gunfa', 'Hall', 'Commercial Properties'];
+// Legacy alias (the events module shipped with this name first).
+export const EVENT_CATEGORIES = PROPERTY_CATEGORIES;
 
 export const TIRTHANKARS = [
   'Shree Adinath (Rishabhdev)',

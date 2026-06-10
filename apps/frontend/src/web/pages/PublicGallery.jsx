@@ -1,15 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Share2, Download } from 'lucide-react';
-import { galleryImages } from '@data/mockData';
-
-const categories = ['All', 'Daily Darshan', 'Mahaparvas', 'Seva', 'Architecture', 'Events'];
+import { publicApi, resolveMedia } from '@services/rbacService';
+import { onImgError } from '@utils/constants';
 
 export default function PublicGallery() {
   const [active, setActive] = useState('All');
   const [preview, setPreview] = useState(null);
+  const [images, setImages] = useState([]);
 
-  const filtered = active === 'All' ? galleryImages : galleryImages.filter((g) => g.category === active);
+  useEffect(() => {
+    let cancelled = false;
+    publicApi.gallery()
+      .then((data) => { if (!cancelled) setImages(data || []); })
+      .catch(() => { /* keep page usable if API is down */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  const categories = useMemo(
+    () => ['All', ...Array.from(new Set(images.map((g) => g.category).filter(Boolean)))],
+    [images],
+  );
+
+  const filtered = active === 'All' ? images : images.filter((g) => g.category === active);
 
   return (
     <div>
@@ -43,6 +56,9 @@ export default function PublicGallery() {
       {/* Grid */}
       <section className="py-16 bg-white dark:bg-neutral-950">
         <div className="max-w-7xl mx-auto px-6">
+          {filtered.length === 0 && (
+            <p className="text-center text-neutral-500 py-16">No photos in the gallery yet — check back soon. 🙏</p>
+          )}
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
             {filtered.map((img, i) => (
               <motion.div
@@ -55,7 +71,7 @@ export default function PublicGallery() {
                 className="relative break-inside-avoid rounded-2xl overflow-hidden group cursor-pointer shadow-card hover:shadow-xl transition"
                 style={{ marginBottom: '1rem' }}
               >
-                <img src={img.src} alt={img.caption} className="w-full group-hover:scale-105 transition-transform duration-700" style={{ height: 200 + ((i * 37) % 180) }} />
+                <img src={resolveMedia(img.src)} onError={onImgError} alt={img.caption} className="w-full group-hover:scale-105 transition-transform duration-700" style={{ height: 200 + ((i * 37) % 180) }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-4">
                   <div className="text-white">
                     <p className="text-[10px] uppercase tracking-wider opacity-75">{img.category}</p>
@@ -85,7 +101,7 @@ export default function PublicGallery() {
               className="max-w-5xl w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <img src={preview.src} alt={preview.caption} className="w-full rounded-2xl" />
+              <img src={resolveMedia(preview.src)} onError={onImgError} alt={preview.caption} className="w-full rounded-2xl" />
               <div className="mt-4 flex items-center justify-between text-white">
                 <div>
                   <p className="text-xs uppercase tracking-wider opacity-75">{preview.category}</p>

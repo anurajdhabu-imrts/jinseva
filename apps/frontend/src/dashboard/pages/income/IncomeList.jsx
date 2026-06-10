@@ -89,6 +89,7 @@ export default function IncomeList() {
       </div>
     )},
     { key: 'category', title: 'Category', render: (v) => <Badge variant="primary">{v}</Badge> },
+    { key: 'property', title: 'Property', render: (v) => v ? <Badge variant="neutral">{v}</Badge> : <span className="text-neutral-400">—</span> },
     { key: 'amount', title: 'Amount', align: 'right', render: (v) => (
       <span className="font-semibold text-jain-green-700">+ {formatCurrency(v)}</span>
     )},

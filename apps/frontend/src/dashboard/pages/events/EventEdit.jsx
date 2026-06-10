@@ -5,8 +5,10 @@ import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Input, { Select, Textarea, Checkbox } from '@components/Input';
 import Button from '@components/Button';
+import ImageUpload from '@dashboard/components/widgets/ImageUpload';
 import { useToast } from '@context/ToastContext';
 import { eventsApi, apiError } from '@services/rbacService';
+import { EVENT_CATEGORIES } from '@utils/constants';
 
 const TYPE_OPTIONS = ['Festival', 'Pooja', 'Mahaparva', 'Janma Kalyanak', 'Tapasya', 'Discourse', 'Seva', 'Community'];
 const STATUS_OPTIONS = [
@@ -33,6 +35,7 @@ export default function EventEdit() {
         setForm({
           title: ev.title ?? '',
           type: ev.type ?? TYPE_OPTIONS[0],
+          category: ev.category ?? '',
           status: ev.status ?? 'upcoming',
           date: ev.date ?? '',
           time: ev.time ?? '',
@@ -70,6 +73,7 @@ export default function EventEdit() {
       await eventsApi.update(id, {
         title: form.title.trim(),
         type: form.type,
+        category: form.category,
         status: form.status,
         date: form.date,
         time: form.time,
@@ -113,9 +117,10 @@ export default function EventEdit() {
             <CardBody className="space-y-4">
               <Input label="Event Title" value={form.title} onChange={(e) => update('title', e.target.value)} required />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Select label="Property / Place" value={form.category} onChange={(e) => update('category', e.target.value)} options={[{ value: '', label: 'Select place…' }, ...EVENT_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
                 <Select label="Event Type" value={form.type} onChange={(e) => update('type', e.target.value)} options={TYPE_OPTIONS} />
-                <Input label="Organizer" value={form.organizer} onChange={(e) => update('organizer', e.target.value)} placeholder="Festival committee" />
               </div>
+              <Input label="Organizer" value={form.organizer} onChange={(e) => update('organizer', e.target.value)} placeholder="Festival committee" />
               <Textarea label="Description" rows={4} value={form.description} onChange={(e) => update('description', e.target.value)} placeholder="Tell devotees about this event…" />
             </CardBody>
           </Card>
@@ -142,7 +147,7 @@ export default function EventEdit() {
             <CardHeader title="Status & Options" />
             <CardBody className="space-y-4">
               <Select label="Status" value={form.status} onChange={(e) => update('status', e.target.value)} options={STATUS_OPTIONS} />
-              <Input label="Banner image URL" value={form.image} onChange={(e) => update('image', e.target.value)} placeholder="https://…" />
+              <ImageUpload value={form.image} onChange={(url) => update('image', url)} label="Banner image" />
               <Checkbox label="Accept donations for this event" checked={form.allowDonations} onChange={(e) => update('allowDonations', e.target.checked)} />
             </CardBody>
           </Card>

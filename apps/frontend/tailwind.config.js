@@ -88,7 +88,14 @@ const jainWhite = {
 };
 
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  content: [
+    './index.html',
+    './src/**/*.{js,jsx,ts,tsx}',
+    // The shared UI library (Select, Input, Button, …) lives here — it MUST be
+    // scanned or classes used only in shared components (e.g. the Select's
+    // `right-3.5` arrow position and `appearance-none`) never get generated.
+    '../../packages/shared/**/*.{js,jsx,ts,tsx}',
+  ],
   darkMode: 'class',
   theme: {
     extend: {

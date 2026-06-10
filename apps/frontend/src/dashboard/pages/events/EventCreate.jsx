@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Save, X, Calendar, Clock, MapPin, Users, Image as ImageIcon, Wallet } from 'lucide-react';
+import { Save, X, Calendar, Clock, MapPin, Users, Wallet } from 'lucide-react';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Input, { Select, Textarea, Checkbox } from '@components/Input';
 import Button from '@components/Button';
+import ImageUpload from '@dashboard/components/widgets/ImageUpload';
 import { useToast } from '@context/ToastContext';
 import { eventsApi, apiError } from '@services/rbacService';
+import { EVENT_CATEGORIES } from '@utils/constants';
 
 export default function EventCreate() {
   const [form, setForm] = useState({
-    title: '', type: 'Festival', date: '', time: '', endTime: '',
+    title: '', type: 'Festival', category: '', date: '', time: '', endTime: '',
     location: '', organizer: '', expectedAttendees: '', budget: '',
-    description: '', notifyDevotees: true, allowDonations: true,
+    description: '', image: '', notifyDevotees: true, allowDonations: true,
   });
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
@@ -31,6 +33,7 @@ export default function EventCreate() {
       await eventsApi.create({
         title: form.title.trim(),
         type: form.type,
+        category: form.category,
         date: form.date,
         time: form.time,
         endTime: form.endTime,
@@ -40,6 +43,7 @@ export default function EventCreate() {
         attendees: Number(form.expectedAttendees) || 0,
         budget: Number(form.budget) || 0,
         description: form.description,
+        image: form.image,
         allowDonations: form.allowDonations,
       });
       toast.success('Event created successfully!');
@@ -93,14 +97,7 @@ export default function EventCreate() {
           <Card>
             <CardHeader title="Event Banner" subtitle="Upload an image to attract devotees" />
             <CardBody>
-              <label className="block border-2 border-dashed border-sand-300 dark:border-neutral-700 rounded-2xl p-10 text-center cursor-pointer hover:border-saffron-500 transition-all">
-                <input type="file" accept="image/*" className="hidden" />
-                <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-saffron-100 to-gold-100 dark:from-saffron-500/20 dark:to-gold-500/20 flex items-center justify-center mb-3">
-                  <Upload className="w-6 h-6 text-saffron-600" />
-                </div>
-                <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Click to upload or drag and drop</p>
-                <p className="text-xs text-neutral-500 mt-1">PNG, JPG up to 5 MB • Recommended 1920×1080</p>
-              </label>
+              <ImageUpload value={form.image} onChange={(url) => update('image', url)} label="" hint="PNG, JPG, WebP up to 5 MB • Recommended 1920×1080" />
             </CardBody>
           </Card>
         </div>
@@ -120,7 +117,7 @@ export default function EventCreate() {
           <Card>
             <CardHeader title="Categories & Tags" />
             <CardBody className="space-y-3">
-              <Select label="Primary Tirthankar" options={['Shree Adinath', 'Shree Mahavir Swami', 'Shree Parshvanath', 'Shree Neminath', 'Shree Shantinath', 'Shree Munisuvratswami']} />
+              <Select label="Property / Place" value={form.category} onChange={(e) => update('category', e.target.value)} options={[{ value: '', label: 'Select place…' }, ...EVENT_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
               <Input label="Tags (comma separated)" placeholder="diwali, lights, pooja" />
             </CardBody>
           </Card>

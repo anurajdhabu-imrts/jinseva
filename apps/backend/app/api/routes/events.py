@@ -117,6 +117,7 @@ def create_event(body: EventCreate, db: Session = Depends(get_db)):
         code=generate_code(db, Event, Event.code, "EVT-", pad=3, start=101),
         title=body.title,
         type=body.type,
+        category=body.category,
         event_date=body.date,
         time=body.time,
         end_time=body.endTime,
@@ -139,7 +140,7 @@ def create_event(body: EventCreate, db: Session = Depends(get_db)):
 def update_event(code: str, body: EventUpdate, db: Session = Depends(get_db)):
     event = _get_event_or_404(db, code)
     mapping = {
-        "title": "title", "type": "type", "location": "location",
+        "title": "title", "type": "type", "category": "category", "location": "location",
         "organizer": "organizer", "status": "status", "attendees": "attendees",
         "budget": "budget", "description": "description", "image": "image",
     }

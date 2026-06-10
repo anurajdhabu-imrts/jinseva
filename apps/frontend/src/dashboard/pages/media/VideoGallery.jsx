@@ -1,20 +1,43 @@
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Play, Upload, Eye, Clock } from 'lucide-react';
+import { Play, Upload, Eye, Clock, Trash2 } from 'lucide-react';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody } from '@components/Card';
 import Button from '@components/Button';
 import Badge from '@components/Badge';
-
-const videos = [
-  { id: 1, title: 'Maha Aarti — Janmashtami 2025',     duration: '12:45', views: 24580, thumb: 'https://images.unsplash.com/photo-1582558508092-c7a39fd14d05?w=800', category: 'Aarti' },
-  { id: 2, title: 'Bhajan Sandhya with Anup Jalota',  duration: '1:24:32', views: 18450, thumb: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800', category: 'Bhajan' },
-  { id: 3, title: 'Diwali Lakshmi Pooja Live',         duration: '45:18', views: 32100, thumb: 'https://images.unsplash.com/photo-1604608672516-f1b9b1e5e7e9?w=800', category: 'Pooja' },
-  { id: 4, title: 'Rudra Abhishekam — Full Ceremony',  duration: '2:15:42', views: 15680, thumb: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=800', category: 'Pooja' },
-  { id: 5, title: 'Holi Celebration Highlights',       duration: '8:32', views: 11250, thumb: 'https://images.unsplash.com/photo-1599627388842-0e94f5d04c0d?w=800', category: 'Festival' },
-  { id: 6, title: 'Bhagavad Gita Discourse Ep. 14',    duration: '52:18', views: 8920, thumb: 'https://images.unsplash.com/photo-1604608672516-f1b9b1e5e7e9?w=800', category: 'Discourse' },
-];
+import { useToast } from '@context/ToastContext';
+import { mediaApi, resolveMedia, apiError } from '@services/rbacService';
+import { onImgError } from '@utils/constants';
 
 export default function VideoGallery() {
+  const { toast } = useToast();
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setVideos(await mediaApi.list({ type: 'video' }));
+    } catch (err) {
+      toast.error(apiError(err));
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const remove = async (v) => {
+    if (!window.confirm('Delete this video?')) return;
+    try {
+      await mediaApi.remove(v.id);
+      toast.success('Video deleted.');
+      setVideos((list) => list.filter((x) => x.id !== v.id));
+    } catch (err) {
+      toast.error(apiError(err));
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -24,11 +47,15 @@ export default function VideoGallery() {
         actions={<Link to="/media/upload"><Button icon={Upload}>Upload Video</Button></Link>}
       />
 
+      {loading && <p className="py-6 text-center text-sm text-neutral-500">Loading videos…</p>}
+      {!loading && videos.length === 0 && <p className="py-10 text-center text-sm text-neutral-500">No videos yet.</p>}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {videos.map((v) => (
           <Card key={v.id} hover className="overflow-hidden group">
             <div className="relative aspect-video overflow-hidden cursor-pointer">
-              <img src={v.thumb} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src={resolveMedia(v.thumb)} onError={onImgError} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <button onClick={() => remove(v)} className="absolute top-3 right-3 z-10 p-1.5 rounded-lg bg-black/40 backdrop-blur text-white hover:bg-rose-500/70 opacity-0 group-hover:opacity-100 transition"><Trash2 className="w-4 h-4" /></button>
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               <div className="absolute inset-0 flex items-center justify-center opacity-90 group-hover:scale-110 transition-transform">
                 <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center ring-4 ring-white/30">

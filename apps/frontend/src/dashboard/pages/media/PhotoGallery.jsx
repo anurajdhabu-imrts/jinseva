@@ -1,25 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, Video, Image as ImageIcon, Heart, Share2, Download, X } from 'lucide-react';
+import { Upload, Video, Heart, Share2, Download, X, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody } from '@components/Card';
 import Button from '@components/Button';
 import SearchBar from '@components/SearchBar';
-import { galleryImages } from '@data/mockData';
-
-const categories = ['All', 'Daily Rituals', 'Festivals', 'Seva', 'Architecture', 'Events'];
+import { useToast } from '@context/ToastContext';
+import { mediaApi, resolveMedia, apiError } from '@services/rbacService';
+import { onImgError } from '@utils/constants';
 
 export default function PhotoGallery() {
+  const { toast } = useToast();
   const [active, setActive] = useState('All');
   const [search, setSearch] = useState('');
   const [preview, setPreview] = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = galleryImages.filter((img) => {
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setPhotos(await mediaApi.list({ type: 'photo' }));
+    } catch (err) {
+      toast.error(apiError(err));
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const categories = useMemo(
+    () => ['All', ...Array.from(new Set(photos.map((p) => p.category).filter(Boolean)))],
+    [photos],
+  );
+
+  const filtered = photos.filter((img) => {
     const matchCat = active === 'All' || img.category === active;
-    const matchSearch = !search || img.caption.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || (img.caption || '').toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
+
+  const remove = async (e, img) => {
+    e.stopPropagation();
+    if (!window.confirm('Delete this photo?')) return;
+    try {
+      await mediaApi.remove(img.id);
+      toast.success('Photo deleted.');
+      setPhotos((list) => list.filter((p) => p.id !== img.id));
+    } catch (err) {
+      toast.error(apiError(err));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -68,7 +101,7 @@ export default function PhotoGallery() {
             className="aspect-square rounded-2xl overflow-hidden group cursor-pointer relative"
             onClick={() => setPreview(img)}
           >
-            <img src={img.src} alt={img.caption} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+            <img src={resolveMedia(img.src)} onError={onImgError} alt={img.caption} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-4">
               <div className="text-white">
                 <p className="text-xs uppercase tracking-wider opacity-75">{img.category}</p>
@@ -76,7 +109,7 @@ export default function PhotoGallery() {
               </div>
             </div>
             <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition">
-              <button className="p-1.5 rounded-lg bg-white/20 backdrop-blur text-white hover:bg-white/30"><Heart className="w-4 h-4" /></button>
+              <button onClick={(e) => remove(e, img)} className="p-1.5 rounded-lg bg-white/20 backdrop-blur text-white hover:bg-rose-500/70"><Trash2 className="w-4 h-4" /></button>
             </div>
           </motion.div>
         ))}
@@ -98,7 +131,7 @@ export default function PhotoGallery() {
               className="relative max-w-5xl w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <img src={preview.src} alt={preview.caption} className="w-full rounded-2xl" />
+              <img src={resolveMedia(preview.src)} onError={onImgError} alt={preview.caption} className="w-full rounded-2xl" />
               <div className="mt-4 flex items-center justify-between text-white">
                 <div>
                   <p className="text-xs uppercase opacity-75">{preview.category}</p>

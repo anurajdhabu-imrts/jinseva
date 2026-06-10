@@ -177,6 +177,7 @@ def create_expense(body: ExpenseCreate, db: Session = Depends(get_db)):
     expense = Expense(
         code=generate_code(db, Expense, Expense.code, "EXP-", pad=4, start=1101),
         category_id=category.id,
+        property=body.property,
         description=body.description,
         vendor=body.vendor,
         amount=body.amount,

@@ -44,6 +44,8 @@ class Expense(Base):
     )
     description: Mapped[str] = mapped_column(String(300), default="", nullable=False)
     vendor: Mapped[str] = mapped_column(String(160), default="", nullable=False)
+    # Temple property/place this expense belongs to (reports break down by it).
+    property: Mapped[str] = mapped_column(String(80), default="", nullable=False)
     amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     method: Mapped[str] = mapped_column(String(40), default="Cash", nullable=False)
     expense_date: Mapped[date | None] = mapped_column(Date, nullable=True)
@@ -61,6 +63,7 @@ class Expense(Base):
             "id": self.code,
             "category": self.category.name if self.category else None,
             "categoryId": self.category_id,
+            "property": self.property,
             "description": self.description,
             "vendor": self.vendor,
             "amount": self.amount,

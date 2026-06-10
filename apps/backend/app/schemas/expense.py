@@ -19,6 +19,7 @@ class ExpenseCategoryUpdate(BaseModel):
 
 class ExpenseCreate(BaseModel):
     category: str = Field(min_length=1)
+    property: str = ""
     description: str = Field(min_length=1)
     vendor: str = ""
     amount: int = Field(gt=0)
@@ -31,6 +32,7 @@ class ExpenseCreate(BaseModel):
 
 class ExpenseUpdate(BaseModel):
     category: str | None = Field(default=None, min_length=1)
+    property: str | None = None
     description: str | None = Field(default=None, min_length=1)
     vendor: str | None = None
     amount: int | None = Field(default=None, gt=0)

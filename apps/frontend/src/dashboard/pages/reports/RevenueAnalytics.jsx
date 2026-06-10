@@ -1,14 +1,32 @@
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+import { useEffect, useState } from 'react';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { Download, Filter, TrendingUp, HandHeart, Coins, Award } from 'lucide-react';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Button from '@components/Button';
 import StatsCard from '@dashboard/components/widgets/StatsCard';
 import { Select } from '@components/Input';
-import { monthlyIncomeExpense, donationCategories } from '@data/mockData';
+import { useToast } from '@context/ToastContext';
+import { reportsApi, apiError } from '@services/rbacService';
 import { formatCurrency } from '@utils/constants';
 
 export default function RevenueAnalytics() {
+  const { toast } = useToast();
+  const [d, setD] = useState({ totalRevenue: 0, donations: 0, poojaFees: 0, miscIncome: 0, monthly: [], byCategory: [] });
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await reportsApi.revenue();
+        if (!cancelled) setD(data);
+      } catch (err) {
+        toast.error(apiError(err));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [toast]);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -25,10 +43,10 @@ export default function RevenueAnalytics() {
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard icon={HandHeart} label="Total Revenue" value={formatCurrency(4825670)} growth={18.4} tone="primary" />
-        <StatsCard icon={Coins} label="Donations" value={formatCurrency(3650000)} growth={22.5} tone="gold" />
-        <StatsCard icon={Award} label="Pooja Fees" value={formatCurrency(845000)} growth={12.0} tone="emerald" />
-        <StatsCard icon={TrendingUp} label="Misc Income" value={formatCurrency(330670)} growth={4.2} tone="violet" />
+        <StatsCard icon={HandHeart} label="Total Revenue" value={formatCurrency(d.totalRevenue)} tone="primary" />
+        <StatsCard icon={Coins} label="Donations" value={formatCurrency(d.donations)} tone="gold" />
+        <StatsCard icon={Award} label="Pooja Fees" value={formatCurrency(d.poojaFees)} tone="emerald" />
+        <StatsCard icon={TrendingUp} label="Misc Income" value={formatCurrency(d.miscIncome)} tone="violet" />
       </div>
 
       <Card>
@@ -36,7 +54,7 @@ export default function RevenueAnalytics() {
         <CardBody>
           <div className="h-80">
             <ResponsiveContainer>
-              <AreaChart data={monthlyIncomeExpense}>
+              <AreaChart data={d.monthly}>
                 <defs>
                   <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#ffc01e" stopOpacity={0.5} />
@@ -61,8 +79,8 @@ export default function RevenueAnalytics() {
             <div className="h-72">
               <ResponsiveContainer>
                 <PieChart>
-                  <Pie data={donationCategories} dataKey="value" innerRadius={60} outerRadius={100} paddingAngle={3} stroke="none">
-                    {donationCategories.map((c, i) => <Cell key={i} fill={c.color} />)}
+                  <Pie data={d.byCategory} dataKey="value" innerRadius={60} outerRadius={100} paddingAngle={3} stroke="none">
+                    {d.byCategory.map((c, i) => <Cell key={i} fill={c.color} />)}
                   </Pie>
                   <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v) => formatCurrency(v)} />
                 </PieChart>

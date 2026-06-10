@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Calendar, ArrowUpRight, MapPin, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -5,11 +6,18 @@ import JainFlagStripe, { JainFlagBadge } from '@web/components/JainFlagStripe';
 import { LotusGlyph } from '@web/components/OrnamentalDivider';
 import CountdownTimer from '@web/components/CountdownTimer';
 import PageHeroSmall from '@web/components/PageHeroSmall';
-import { publicFestivals, dailySchedule } from '@data/mockData';
-import { nextMajorEvent } from '@web/data/publicData';
+import { dailySchedule } from '@data/mockData';
+import { publicApi } from '@services/rbacService';
 import { formatDate } from '@utils/constants';
 
 const toneCycle = ['red', 'yellow', 'green', 'black', 'red', 'yellow'];
+
+// Events have no emoji; pick one from the event type for the festival cards.
+const TYPE_ICONS = {
+  Festival: '🎉', Pooja: '🪔', Mahaparva: '🕉️', 'Janma Kalyanak': '🌟',
+  Tapasya: '🧘', Discourse: '📿', Seva: '🤝', Community: '🏛️', Wedding: '💍',
+};
+const iconFor = (type) => TYPE_ICONS[type] || '🪔';
 
 const colorMap = {
   red:    { bg: 'bg-jain-red-600',    chip: 'bg-jain-red-600',    text: 'text-jain-red-700',    ring: 'border-jain-red-600',    yellowChip: 'bg-jain-yellow-400 text-jain-black-900' },
@@ -19,6 +27,18 @@ const colorMap = {
 };
 
 export default function Festivals() {
+  const [festivals, setFestivals] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    publicApi.festivals()
+      .then((data) => { if (!cancelled) setFestivals(data || []); })
+      .catch(() => { /* keep the page usable even if the API is down */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  const next = festivals[0];
+
   return (
     <div className="bg-white">
       <PageHeroSmall
@@ -30,6 +50,7 @@ export default function Festivals() {
       />
 
       {/* Featured upcoming event strip with countdown */}
+      {next && (
       <section className="py-10 bg-jain-yellow-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center bg-white p-6 md:p-8 rounded-3xl border-2 border-jain-yellow-300">
@@ -38,27 +59,28 @@ export default function Festivals() {
                 <JainFlagBadge size="sm" />
                 <div>
                   <p className="font-mono text-[10px] text-jain-red-600 tracking-[0.3em]">NEXT MAHAPARVA</p>
-                  <p className="font-serif text-xl font-bold text-jain-black-900">{nextMajorEvent.title}</p>
+                  <p className="font-serif text-xl font-bold text-jain-black-900">{next.title}</p>
                 </div>
               </div>
-              <p className="text-sm text-jain-black-700 leading-relaxed">{nextMajorEvent.subtitle}</p>
+              <p className="text-sm text-jain-black-700 leading-relaxed line-clamp-2">{next.description}</p>
               <div className="flex flex-wrap gap-2 mt-4 text-xs">
                 <span className="px-3 py-1.5 rounded-full bg-jain-yellow-50 border border-jain-yellow-300 inline-flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-jain-red-600" />
-                  <span className="font-bold">{formatDate(nextMajorEvent.date)}</span>
+                  <span className="font-bold">{formatDate(next.date)}</span>
                 </span>
                 <span className="px-3 py-1.5 rounded-full bg-jain-green-50 border border-jain-green-300 inline-flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-jain-green-700" />
-                  <span className="font-bold">Derasar</span>
+                  <span className="font-bold">{next.location || 'Derasar'}</span>
                 </span>
               </div>
             </div>
             <div className="lg:col-span-5">
-              <CountdownTimer target={nextMajorEvent.date} />
+              <CountdownTimer target={next.date} />
             </div>
           </div>
         </div>
       </section>
+      )}
 
       {/* FESTIVAL GRID */}
       <section className="py-24 bg-white">
@@ -79,9 +101,12 @@ export default function Festivals() {
             </p>
           </div>
 
+          {festivals.length === 0 ? (
+            <p className="text-center text-jain-black-500 py-16">No upcoming festivals announced yet — check back soon. 🙏</p>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {publicFestivals.map((f, i) => {
-              const tone = toneCycle[i] || 'red';
+            {festivals.map((f, i) => {
+              const tone = toneCycle[i % toneCycle.length] || 'red';
               const c = colorMap[tone];
               return (
                 <motion.div
@@ -96,24 +121,25 @@ export default function Festivals() {
                     Parva #{String(i + 1).padStart(2, '0')}
                   </span>
                   <div className="flex items-start justify-between mt-3">
-                    <span className="text-6xl">{f.icon}</span>
+                    <span className="text-6xl">{iconFor(f.type)}</span>
                     <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${c.yellowChip}`}>
                       <Calendar className="w-3 h-3 inline mr-1" />
                       {formatDate(f.date, { day: 'numeric', month: 'short' })}
                     </span>
                   </div>
-                  <h3 className={`font-display text-2xl font-bold mt-5 ${c.text}`}>{f.name}</h3>
-                  <p className="text-sm text-jain-black-700 mt-3 leading-relaxed line-clamp-3">{f.desc}</p>
-                  <button className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-jain-black-900">
+                  <h3 className={`font-display text-2xl font-bold mt-5 ${c.text}`}>{f.title}</h3>
+                  <p className="text-sm text-jain-black-700 mt-3 leading-relaxed line-clamp-3">{f.description}</p>
+                  <Link to="/auth/login" className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-jain-black-900">
                     Read more
                     <span className={`w-7 h-7 rounded-full ${c.bg} ${tone === 'yellow' ? 'text-jain-black-900' : 'text-white'} flex items-center justify-center group-hover:rotate-45 transition-transform`}>
                       <ArrowUpRight className="w-3 h-3" />
                     </span>
-                  </button>
+                  </Link>
                 </motion.div>
               );
             })}
           </div>
+          )}
         </div>
       </section>
 

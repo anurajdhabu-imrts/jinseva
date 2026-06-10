@@ -121,6 +121,7 @@ def create_income(body: IncomeCreate, db: Session = Depends(get_db)):
     income = Income(
         code=generate_code(db, Income, Income.code, "INC-", pad=4, start=1001),
         category=body.category,
+        property=body.property,
         description=body.description,
         source=body.source,
         amount=body.amount,

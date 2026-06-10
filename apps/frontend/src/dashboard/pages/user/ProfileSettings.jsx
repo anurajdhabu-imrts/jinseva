@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Camera, Save, Lock, Bell, Globe2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Camera, Save, Lock, Globe2 } from 'lucide-react';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
-import Input, { Select, Textarea, Switch } from '@components/Input';
+import Input, { Select, Textarea } from '@components/Input';
 import Button from '@components/Button';
 import Avatar from '@components/Avatar';
 import Tabs from '@components/Tabs';
@@ -10,17 +10,34 @@ import { useAuth } from '@context/AuthContext';
 import { useToast } from '@context/ToastContext';
 import { meApi, apiError } from '@services/rbacService';
 
+const GOTRA_OPTIONS = ['', 'Bharadwaja', 'Vasishtha', 'Kashyapa', 'Atri', 'Gautama', 'Other'];
+
 function ProfileTab() {
   const { user, refresh } = useAuth();
   const { toast } = useToast();
-  const [name, setName] = useState(user?.name ?? '');
+  const [form, setForm] = useState({
+    name: user?.name ?? '',
+    phone: user?.phone ?? '',
+    city: user?.city ?? '',
+    gotra: user?.gotra ?? '',
+    dob: user?.dob ?? '',
+    bio: user?.bio ?? '',
+  });
   const [saving, setSaving] = useState(false);
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const save = async () => {
-    if (!name.trim()) return toast.error('Name is required.');
+    if (!form.name.trim()) return toast.error('Name is required.');
     setSaving(true);
     try {
-      await meApi.updateProfile({ name: name.trim() });
+      await meApi.updateProfile({
+        name: form.name.trim(),
+        phone: form.phone,
+        city: form.city,
+        gotra: form.gotra,
+        dob: form.dob || null,
+        bio: form.bio,
+      });
       await refresh?.();
       toast.success('Profile updated');
     } catch (err) {
@@ -47,15 +64,52 @@ function ProfileTab() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="Full Name" icon={User} value={name} onChange={(e) => setName(e.target.value)} />
+          <Input label="Full Name" icon={User} value={form.name} onChange={(e) => set('name', e.target.value)} />
           <Input label="Email" icon={Mail} type="email" defaultValue={user?.email} disabled />
-          <Input label="Phone" icon={Phone} type="tel" placeholder="+91 …" />
-          <Input label="City" icon={MapPin} placeholder="City" />
-          <Select label="Gotra" options={['Bharadwaja', 'Vasishtha', 'Kashyapa', 'Atri', 'Gautama', 'Other']} />
-          <Input label="Date of Birth" type="date" />
+          <Input label="Phone" icon={Phone} type="tel" placeholder="+91 …" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
+          <Input label="City" icon={MapPin} placeholder="City" value={form.city} onChange={(e) => set('city', e.target.value)} />
+          <Select label="Gotra" options={GOTRA_OPTIONS} value={form.gotra} onChange={(e) => set('gotra', e.target.value)} />
+          <Input label="Date of Birth" type="date" value={form.dob || ''} onChange={(e) => set('dob', e.target.value)} />
         </div>
-        <Textarea label="Bio / About me" placeholder="Share a few words…" />
+        <Textarea label="Bio / About me" placeholder="Share a few words…" value={form.bio} onChange={(e) => set('bio', e.target.value)} />
         <Button icon={Save} loading={saving} onClick={save}>Save Changes</Button>
+      </CardBody>
+    </Card>
+  );
+}
+
+function SecurityTab() {
+  const { toast } = useToast();
+  const [form, setForm] = useState({ current: '', next: '', confirm: '' });
+  const [saving, setSaving] = useState(false);
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const submit = async () => {
+    if (!form.current || !form.next) return toast.error('Enter your current and new password.');
+    if (form.next.length < 6) return toast.error('New password must be at least 6 characters.');
+    if (form.next !== form.confirm) return toast.error('New password and confirmation do not match.');
+    setSaving(true);
+    try {
+      const res = await meApi.changePassword(form.current, form.next);
+      toast.success(res?.message || 'Password updated.');
+      setForm({ current: '', next: '', confirm: '' });
+    } catch (err) {
+      toast.error(apiError(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader title="Password & Security" />
+      <CardBody className="space-y-4">
+        <Input label="Current password" icon={Lock} type="password" value={form.current} onChange={(e) => set('current', e.target.value)} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input label="New password" icon={Lock} type="password" value={form.next} onChange={(e) => set('next', e.target.value)} />
+          <Input label="Confirm new password" icon={Lock} type="password" value={form.confirm} onChange={(e) => set('confirm', e.target.value)} />
+        </div>
+        <Button icon={Save} loading={saving} onClick={submit}>Update Password</Button>
       </CardBody>
     </Card>
   );
@@ -73,53 +127,7 @@ export default function ProfileSettings() {
       key: 'security',
       label: 'Security',
       icon: Lock,
-      content: (
-        <Card>
-          <CardHeader title="Password & Security" />
-          <CardBody className="space-y-4">
-            <Input label="Current password" icon={Lock} type="password" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input label="New password" icon={Lock} type="password" />
-              <Input label="Confirm new password" icon={Lock} type="password" />
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-sand-50 dark:bg-neutral-800/50">
-              <div>
-                <p className="font-medium">Two-factor authentication</p>
-                <p className="text-sm text-neutral-500">Receive a code via SMS on every login</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <Button icon={Save}>Update Password</Button>
-          </CardBody>
-        </Card>
-      ),
-    },
-    {
-      key: 'notifications',
-      label: 'Notifications',
-      icon: Bell,
-      content: (
-        <Card>
-          <CardHeader title="Notification Preferences" />
-          <CardBody className="space-y-4">
-            {[
-              { l: 'Donation receipts via email', d: 'Get receipts delivered to your inbox' },
-              { l: 'Event announcements', d: 'Be the first to know about new events' },
-              { l: 'Pooja reminders', d: 'Reminders before your scheduled poojas' },
-              { l: 'Festival greetings', d: 'Receive personalized festival messages' },
-              { l: 'Marketing communications', d: 'Tips, stories, and seva opportunities' },
-            ].map((n, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-sand-50 dark:bg-neutral-800/50">
-                <div>
-                  <p className="font-medium">{n.l}</p>
-                  <p className="text-sm text-neutral-500">{n.d}</p>
-                </div>
-                <Switch defaultChecked={i < 3} />
-              </div>
-            ))}
-          </CardBody>
-        </Card>
-      ),
+      content: <SecurityTab />,
     },
     {
       key: 'preferences',

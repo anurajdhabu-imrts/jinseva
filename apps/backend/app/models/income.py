@@ -14,6 +14,8 @@ class Income(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     code: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
     category: Mapped[str] = mapped_column(String(80), default="Other", nullable=False)
+    # Temple property/place this income belongs to (reports break down by it).
+    property: Mapped[str] = mapped_column(String(80), default="", nullable=False)
     description: Mapped[str] = mapped_column(String(300), default="", nullable=False)
     source: Mapped[str] = mapped_column(String(160), default="", nullable=False)
     amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -34,6 +36,7 @@ class Income(Base):
         return {
             "id": self.code,
             "category": self.category,
+            "property": self.property,
             "description": self.description,
             "source": self.source,
             "amount": self.amount,

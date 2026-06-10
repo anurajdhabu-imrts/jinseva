@@ -5,7 +5,7 @@ import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Input, { Select, Textarea, Checkbox } from '@components/Input';
 import Button from '@components/Button';
-import { DONATION_TYPES, PAYMENT_METHODS, formatCurrency } from '@utils/constants';
+import { DONATION_TYPES, PAYMENT_METHODS, PROPERTY_CATEGORIES, formatCurrency } from '@utils/constants';
 import { useToast } from '@context/ToastContext';
 import { donationsApi, apiError } from '@services/rbacService';
 
@@ -13,7 +13,7 @@ const quickAmounts = [501, 1001, 2100, 5100, 11000, 25000];
 
 export default function AddDonation() {
   const [form, setForm] = useState({
-    donor: '', email: '', phone: '', type: DONATION_TYPES[0],
+    donor: '', email: '', phone: '', type: DONATION_TYPES[0], property: PROPERTY_CATEGORIES[0],
     amount: '', method: PAYMENT_METHODS[0], purpose: '', anonymous: false, sendReceipt: true,
   });
   const [saving, setSaving] = useState(false);
@@ -39,6 +39,7 @@ export default function AddDonation() {
         email: form.email,
         phone: form.phone,
         type: form.type,
+        property: form.property,
         amount,
         method: form.method,
         date: new Date().toISOString().slice(0, 10),
@@ -81,6 +82,7 @@ export default function AddDonation() {
             <CardHeader title="Donation Details" />
             <CardBody className="space-y-4">
               <Select label="Purpose" options={DONATION_TYPES} value={form.type} onChange={(e) => update('type', e.target.value)} />
+              <Select label="Property / Place" options={PROPERTY_CATEGORIES} value={form.property} onChange={(e) => update('property', e.target.value)} />
               <div>
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Amount</label>
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">

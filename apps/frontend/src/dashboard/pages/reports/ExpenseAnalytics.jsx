@@ -1,19 +1,33 @@
+import { useEffect, useState } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { Download, TrendingDown, Receipt, Building2, Wallet } from 'lucide-react';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Button from '@components/Button';
 import StatsCard from '@dashboard/components/widgets/StatsCard';
-import { monthlyIncomeExpense } from '@data/mockData';
-import { formatCurrency, EXPENSE_CATEGORIES } from '@utils/constants';
-
-const categoryBreakdown = EXPENSE_CATEGORIES.slice(0, 6).map((cat, i) => ({
-  name: cat,
-  value: 50000 + i * 35000 + 20000,
-  color: ['#ffc01e', '#c8102e', '#00843d', '#1a1b22', '#d68500', '#761120'][i],
-}));
+import { useToast } from '@context/ToastContext';
+import { reportsApi, apiError } from '@services/rbacService';
+import { formatCurrency } from '@utils/constants';
 
 export default function ExpenseAnalytics() {
+  const { toast } = useToast();
+  const [d, setD] = useState({ totalExpense: 0, avgMonthly: 0, transactions: 0, vendors: 0, byCategory: [], monthly: [] });
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await reportsApi.expense();
+        if (!cancelled) setD(data);
+      } catch (err) {
+        toast.error(apiError(err));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [toast]);
+
+  const categoryBreakdown = d.byCategory;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -24,10 +38,10 @@ export default function ExpenseAnalytics() {
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard icon={Wallet} label="Total Expense" value={formatCurrency(1842300)} growth={-3.2} tone="rose" />
-        <StatsCard icon={TrendingDown} label="Avg Monthly" value={formatCurrency(178000)} growth={-8.4} tone="primary" />
-        <StatsCard icon={Receipt} label="Transactions" value="248" growth={2.4} tone="gold" />
-        <StatsCard icon={Building2} label="Active Vendors" value="42" growth={5.0} tone="violet" />
+        <StatsCard icon={Wallet} label="Total Expense" value={formatCurrency(d.totalExpense)} tone="rose" />
+        <StatsCard icon={TrendingDown} label="Avg Monthly" value={formatCurrency(d.avgMonthly)} tone="primary" />
+        <StatsCard icon={Receipt} label="Transactions" value={String(d.transactions)} tone="gold" />
+        <StatsCard icon={Building2} label="Active Vendors" value={String(d.vendors)} tone="violet" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -60,7 +74,7 @@ export default function ExpenseAnalytics() {
           <CardBody>
             <div className="h-72">
               <ResponsiveContainer>
-                <BarChart data={monthlyIncomeExpense}>
+                <BarChart data={d.monthly}>
                   <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" vertical={false} />
                   <XAxis dataKey="month" stroke="#94a3b8" />
                   <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v/1000}k`} />

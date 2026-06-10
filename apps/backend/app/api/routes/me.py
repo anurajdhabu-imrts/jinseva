@@ -1,14 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import Principal, get_current_principal
 from app.core.database import get_db
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 from app.models.booking import Booking
-from app.models.communication import Notification
 from app.models.donation import Donation
-from app.schemas.communication import ProfileUpdate
+from app.schemas.communication import ChangePasswordRequest, ProfileUpdate
 from app.services.rbac import hydrate_user
 
 router = APIRouter(prefix="/me", tags=["devotee-portal"])
@@ -76,16 +75,6 @@ def my_bookings(
     return {"success": True, "count": len(data), "data": data}
 
 
-@router.get("/notifications")
-def my_notifications(
-    principal: Principal = Depends(get_current_principal),
-    db: Session = Depends(get_db),
-):
-    rows = db.scalars(select(Notification).order_by(Notification.created_at.desc())).all()
-    data = [n.to_dict() for n in rows]
-    return {"success": True, "count": len(data), "unread": sum(1 for n in rows if not n.read), "data": data}
-
-
 @router.put("/profile")
 def update_profile(
     body: ProfileUpdate,
@@ -93,12 +82,41 @@ def update_profile(
     db: Session = Depends(get_db),
 ):
     user = principal.user
-    if body.name is not None:
-        user.name = body.name
-    if body.avatar is not None:
-        user.avatar = body.avatar
-    if body.password:
-        user.password_hash = hash_password(body.password)
+    data = body.model_dump(exclude_unset=True)
+    if "name" in data:
+        user.name = data["name"]
+    if "avatar" in data:
+        user.avatar = data["avatar"]
+    if "phone" in data:
+        user.phone = data["phone"]
+    if "city" in data:
+        user.city = data["city"]
+    if "gotra" in data:
+        user.gotra = data["gotra"]
+    if "dob" in data:
+        user.dob = data["dob"]
+    if "bio" in data:
+        user.bio = data["bio"]
+    if data.get("password"):
+        user.password_hash = hash_password(data["password"])
     db.commit()
     db.refresh(user)
     return {"success": True, "user": hydrate_user(db, user)}
+
+
+@router.post("/change-password")
+def change_password(
+    body: ChangePasswordRequest,
+    principal: Principal = Depends(get_current_principal),
+    db: Session = Depends(get_db),
+):
+    user = principal.user
+    if not verify_password(body.currentPassword, user.password_hash):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Current password is incorrect")
+    if verify_password(body.newPassword, user.password_hash):
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "New password must be different from the current one"
+        )
+    user.password_hash = hash_password(body.newPassword)
+    db.commit()
+    return {"success": True, "message": "Password updated. Use your new password next time you sign in."}

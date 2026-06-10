@@ -10,6 +10,7 @@ import JainFlagStripe from '@web/components/JainFlagStripe';
 import { LotusGlyph } from '@web/components/OrnamentalDivider';
 import PageHeroSmall from '@web/components/PageHeroSmall';
 import { useToast } from '@context/ToastContext';
+import { publicApi, apiError } from '@services/rbacService';
 
 const contactBlocks = [
   {
@@ -46,12 +47,25 @@ const colorMap = {
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
+  const [sending, setSending] = useState(false);
   const { toast } = useToast();
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    toast.success('Your message has been received. Jai Jinendra!');
-    setForm({ name: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+      return toast.error('Please fill in your name, email and message.');
+    }
+    setSending(true);
+    try {
+      const res = await publicApi.contact(form);
+      toast.success(res?.message || 'Your message has been received. Jai Jinendra!');
+      if (res?.note) toast.info ? toast.info(res.note) : toast.success(res.note);
+      setForm({ name: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
+    } catch (err) {
+      toast.error(apiError(err));
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -173,8 +187,8 @@ export default function Contact() {
                   <Input label="Email" type="email" placeholder="you@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
                   <Select label="Subject" options={['General Inquiry', 'Pooja Booking', 'Volunteer Interest', 'Hall Booking', 'Other']} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} />
                   <Textarea label="Message" rows={6} placeholder="How can we help you?" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required />
-                  <button type="submit" className="group inline-flex items-center gap-2 pl-6 pr-1.5 py-1.5 rounded-full bg-jain-red-600 hover:bg-jain-red-700 text-white font-bold transition-all">
-                    Send message
+                  <button type="submit" disabled={sending} className="group inline-flex items-center gap-2 pl-6 pr-1.5 py-1.5 rounded-full bg-jain-red-600 hover:bg-jain-red-700 disabled:opacity-60 text-white font-bold transition-all">
+                    {sending ? 'Sending…' : 'Send message'}
                     <span className="w-10 h-10 rounded-full bg-jain-yellow-400 text-jain-red-700 flex items-center justify-center group-hover:rotate-45 transition-transform">
                       <Send className="w-3.5 h-3.5" />
                     </span>

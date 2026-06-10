@@ -22,10 +22,10 @@ from app.core.permissions import (
     SYSTEM_ROLE_DEVOTEE,
 )
 from app.core.security import hash_password
-from app.models.communication import MessageTemplate, Notification
-from app.models.event import Event
+from app.models.communication import MessageTemplate
 from app.models.expense import ExpenseCategory
 from app.models.inventory import Supplier
+from app.models.media import Media
 from app.models.role import Role
 from app.models.user import User
 
@@ -115,32 +115,11 @@ def seed_admin(db) -> None:
     print(f"  created admin user {email} (password from SEED_ADMIN_PASSWORD)")
 
 
-# A few starter events so the Events module isn't empty on first run.
-# (code, title, type, date, time, endTime, location, organizer, status, attendees, budget, description, image)
-EVENT_SEED = [
-    ("EVT-101", "Paryushan Mahaparva", "Mahaparva", "2026-08-30", "04:00", "23:00", "Main Derasar Complex", "Acharya Shree Vimal Surishwar", "upcoming", 3500, 450000, "8-day festival of forgiveness, tapasya and self-discipline culminating in Samvatsari Pratikraman.", "https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=1200"),
-    ("EVT-102", "Mahavir Janma Kalyanak", "Janma Kalyanak", "2026-04-15", "06:00", "21:00", "Rangmandap", "Sangh Committee", "upcoming", 2200, 280000, "Birth celebration of Bhagwan Mahavir with Snatra Mahapooja, jhanki and pravachan.", "https://images.unsplash.com/photo-1604608672516-f1b9b1e5e7e9?w=1200"),
-    ("EVT-103", "Aayambil Oli", "Tapasya", "2026-05-29", "07:00", "20:00", "Upashraya Hall", "Tapasvi Group", "upcoming", 450, 35000, "9-day spiritual fasting period dedicated to the Navpad — Arihant, Siddha and other parmesthi padas.", "https://images.unsplash.com/photo-1518152006812-edab29b069ac?w=1200"),
-    ("EVT-104", "Das Lakshan Parva", "Mahaparva", "2026-09-10", "00:00", "23:59", "Entire Derasar", "Festival Committee", "upcoming", 5000, 850000, "10 virtues celebration with daily pravachans, vidhan poojas and community vatsalya.", "https://images.unsplash.com/photo-1582558508092-c7a39fd14d05?w=1200"),
-    ("EVT-105", "Diwali Nirvana Mahotsav", "Mahaparva", "2025-11-12", "17:30", "22:00", "Mool Nayak Garbhgruha", "Festival Committee", "completed", 2800, 380000, "Bhagwan Mahavir's nirvana anniversary observed with deep darshan, laxmi pujan and gyan utsav.", "https://images.unsplash.com/photo-1604608672516-f1b9b1e5e7e9?w=1200"),
-    ("EVT-106", "Snatra Mahapooja", "Pooja", "2026-05-31", "08:00", "11:00", "Rangmandap", "Pooja Committee", "upcoming", 400, 15000, "Ceremonial abhishek of Mool Nayak Tirthankar with milk, water, kesar and chandan.", "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=1200"),
-]
-
-
-def seed_events(db) -> None:
-    for (code, title, typ, dt, t, et, loc, org, st, att, bud, desc, img) in EVENT_SEED:
-        if db.scalar(select(Event).where(Event.code == code)):
-            continue
-        db.add(
-            Event(
-                code=code, title=title, type=typ,
-                event_date=date.fromisoformat(dt), time=t, end_time=et,
-                location=loc, organizer=org, status=st, attendees=att, budget=bud,
-                description=desc, image=img, allow_donations=True,
-            )
-        )
-        print(f"  created event '{title}' ({code})")
-    db.commit()
+def _stable_image(img: str, code: str, size: str = "1200/800") -> str:
+    # Unsplash photo IDs go dead over time → use a deterministic picsum image.
+    if img and "unsplash" in img:
+        return f"https://picsum.photos/seed/{code}/{size}"
+    return img
 
 
 # Master expense categories (reference data the Expenses module links to).
@@ -189,16 +168,6 @@ TEMPLATE_SEED = [
     ("Kshamavani Greeting", "Email", "Micchami Dukkadam", 88, "2026-05-12"),
 ]
 
-# (type, title, message)
-NOTIFICATION_SEED = [
-    ("donation", "New donation received", "Rs.25,000 from Priya Jain for renovation"),
-    ("event", "Pooja reminder", "Snatra Pooja starts in 2 hours"),
-    ("booking", "New pooja booking", "Ashta Prakari Pooja booked for May 31"),
-    ("inventory", "Low stock alert", "Chandan (sandalwood) below threshold"),
-    ("staff", "Staff attendance", "3 staff members on leave today"),
-]
-
-
 def seed_templates(db) -> None:
     for (name, typ, subject, usage, lu) in TEMPLATE_SEED:
         if db.scalar(select(MessageTemplate).where(MessageTemplate.name == name)):
@@ -208,12 +177,28 @@ def seed_templates(db) -> None:
     db.commit()
 
 
-def seed_notifications(db) -> None:
-    if db.scalar(select(Notification).limit(1)):
-        return
-    for (typ, title, msg) in NOTIFICATION_SEED:
-        db.add(Notification(type=typ, title=title, message=msg))
-        print(f"  created notification '{title}'")
+# (code, type, title, category, url, thumbnail, duration, views)
+MEDIA_SEED = [
+    ("MED-001", "photo", "Mool Nayak Darshan", "Daily Rituals", "https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=800", "", "", 0),
+    ("MED-002", "photo", "Diwali Nirvana Mahotsav", "Festivals", "https://images.unsplash.com/photo-1604608672516-f1b9b1e5e7e9?w=800", "", "", 0),
+    ("MED-003", "photo", "Pratahkal Snatra", "Daily Rituals", "https://images.unsplash.com/photo-1582558508092-c7a39fd14d05?w=800", "", "", 0),
+    ("MED-004", "photo", "Sadharmik Vatsalya", "Seva", "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800", "", "", 0),
+    ("MED-005", "photo", "Shikhar Architecture", "Architecture", "https://images.unsplash.com/photo-1568438350562-2cae6d394ad0?w=800", "", "", 0),
+    ("MED-006", "photo", "Paryushan Bhakti", "Festivals", "https://images.unsplash.com/photo-1599627388842-0e94f5d04c0d?w=800", "", "", 0),
+    ("MED-101", "video", "Maha Aarti — Highlights", "Aarti", "https://images.unsplash.com/photo-1582558508092-c7a39fd14d05?w=800", "https://images.unsplash.com/photo-1582558508092-c7a39fd14d05?w=800", "12:45", 24580),
+    ("MED-102", "video", "Snatra Mahapooja Live", "Pooja", "https://images.unsplash.com/photo-1604608672516-f1b9b1e5e7e9?w=800", "https://images.unsplash.com/photo-1604608672516-f1b9b1e5e7e9?w=800", "45:18", 32100),
+    ("MED-103", "video", "Pravachan by Acharya ji", "Discourse", "https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=800", "https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=800", "52:18", 8920),
+]
+
+
+def seed_media(db) -> None:
+    for (code, mtype, title, cat, url, thumb, dur, views) in MEDIA_SEED:
+        if db.scalar(select(Media).where(Media.code == code)):
+            continue
+        url = _stable_image(url, code, "800/600")
+        thumb = _stable_image(thumb, code + "t", "800/600")
+        db.add(Media(code=code, media_type=mtype, title=title, category=cat, url=url, thumbnail=thumb, duration=dur, views=views))
+        print(f"  created media '{title}' ({code})")
     db.commit()
 
 
@@ -226,16 +211,14 @@ def main() -> None:
         seed_roles(db)
         print("Seeding admin…")
         seed_admin(db)
-        print("Seeding events…")
-        seed_events(db)
         print("Seeding expense categories…")
         seed_expense_categories(db)
         print("Seeding suppliers…")
         seed_suppliers(db)
         print("Seeding templates…")
         seed_templates(db)
-        print("Seeding notifications…")
-        seed_notifications(db)
+        print("Seeding media…")
+        seed_media(db)
         print("Seed complete.")
     finally:
         db.close()

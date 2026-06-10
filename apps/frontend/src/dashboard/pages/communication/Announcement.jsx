@@ -7,18 +7,36 @@ import Button from '@components/Button';
 import Badge from '@components/Badge';
 import Table from '@components/Table';
 import StatsCard from '@dashboard/components/widgets/StatsCard';
-import { formatDate } from '@utils/constants';
+import ImageUpload from '@dashboard/components/widgets/ImageUpload';
+import { formatDate, onImgError } from '@utils/constants';
 import { useToast } from '@context/ToastContext';
-import { communicationApi, apiError } from '@services/rbacService';
+import { useAuth } from '@context/AuthContext';
+import { communicationApi, resolveMedia, apiError } from '@services/rbacService';
 
 const audiences = ['All Devotees', 'Platinum Members', 'Gold Members', 'Donors', 'Volunteers', 'Staff'];
 
 export default function Announcement() {
-  const [form, setForm] = useState({ title: '', message: '', audience: audiences[0], channels: { email: true, whatsapp: false } });
+  const [form, setForm] = useState({ title: '', message: '', audience: audiences[0], image: '', channels: { email: true, whatsapp: false } });
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
   const [announcements, setAnnouncements] = useState([]);
   const [meta, setMeta] = useState({ totalSent: 0, openRate: 0 });
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  const sendTest = async () => {
+    const to = window.prompt('Send a test email to:', user?.email || '');
+    if (!to) return;
+    setTesting(true);
+    try {
+      const res = await communicationApi.testEmail(to.trim());
+      toast.success(res?.message || `Test email sent to ${to}`);
+    } catch (err) {
+      toast.error(apiError(err));
+    } finally {
+      setTesting(false);
+    }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -57,15 +75,17 @@ export default function Announcement() {
     if (!form.title.trim() || !form.message.trim()) return toast.error('Title and message are required.');
     setSaving(true);
     try {
-      await communicationApi.createAnnouncement({
+      const res = await communicationApi.createAnnouncement({
         title: form.title.trim(),
         message: form.message.trim(),
         audience: form.audience,
         channel: channelLabel(),
+        image: form.image,
         status: 'sent',
       });
-      toast.success('Announcement sent to ' + form.audience);
-      setForm({ title: '', message: '', audience: audiences[0], channels: { email: true, whatsapp: false } });
+      if (res?.note) toast.info ? toast.info(res.note) : toast.success(res.note);
+      else toast.success(`Sent to ${form.audience}${res?.emailed ? ` — emailed ${res.emailed} recipient(s)` : ''}.`);
+      setForm({ title: '', message: '', audience: audiences[0], image: '', channels: { email: true, whatsapp: false } });
       await load();
     } catch (err) {
       toast.error(apiError(err));
@@ -95,7 +115,11 @@ export default function Announcement() {
             <CardHeader title="Compose Announcement" subtitle="Reach devotees instantly" />
             <CardBody className="space-y-4">
               <Input label="Title" placeholder="e.g., Special Mahashivaratri Pooja Schedule" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
               <Textarea label="Message" rows={6} placeholder="Share details with devotees…" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required />
+              <ImageUpload label="Image (optional)" value={form.image} onChange={(url) => setForm({ ...form, image: url })} hint="Attach a banner/poster — PNG, JPG, WebP" />
+              </div>
               <Select label="Audience" icon={Users} options={audiences} value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })} />
 
               <div>
@@ -130,7 +154,7 @@ export default function Announcement() {
           </Card>
           <div className="flex gap-3">
             <Button type="submit" icon={Send} loading={saving}>Send Now</Button>
-            <Button type="button" variant="secondary" icon={Calendar}>Schedule</Button>
+            <Button type="button" variant="secondary" icon={Mail} loading={testing} onClick={sendTest}>Send test email</Button>
             <Button type="button" variant="ghost" icon={Eye}>Preview</Button>
           </div>
         </form>
@@ -142,6 +166,9 @@ export default function Announcement() {
               <div className="rounded-xl bg-sand-50 dark:bg-neutral-800/50 p-4 border-l-4 border-saffron-500">
                 <p className="text-xs font-semibold uppercase tracking-wider text-saffron-700">{form.audience}</p>
                 <p className="font-serif font-semibold mt-2">{form.title || 'Announcement title'}</p>
+                {form.image && (
+                  <img src={resolveMedia(form.image)} onError={onImgError} alt="Announcement" className="w-full h-36 object-cover rounded-lg mt-3" />
+                )}
                 <p className="text-sm text-neutral-700 dark:text-neutral-300 mt-2">{form.message || 'Your message will appear here…'}</p>
               </div>
             </CardBody>

@@ -1,15 +1,17 @@
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
-import { monthlyIncomeExpense } from '@data/mockData';
 import Card, { CardHeader, CardBody } from '@components/Card';
 
-export default function IncomeExpenseChart() {
+export default function IncomeExpenseChart({ data = [] }) {
   return (
     <Card>
       <CardHeader title="Income vs Expense" subtitle="Monthly comparison this year" />
       <CardBody>
         <div className="h-72">
+          {data.length === 0 ? (
+            <p className="h-full grid place-items-center text-sm text-neutral-500">No income/expense data yet.</p>
+          ) : (
           <ResponsiveContainer>
-            <AreaChart data={monthlyIncomeExpense} margin={{ top: 10, right: 10, bottom: 0, left: -10 }}>
+            <AreaChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -10 }}>
               <defs>
                 <linearGradient id="inc" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%"  stopColor="#ffc01e" stopOpacity={0.45} />
@@ -38,6 +40,7 @@ export default function IncomeExpenseChart() {
               <Area type="monotone" dataKey="expense" name="Expense" stroke="#c8102e" strokeWidth={2.5} fill="url(#exp)" />
             </AreaChart>
           </ResponsiveContainer>
+          )}
         </div>
       </CardBody>
     </Card>

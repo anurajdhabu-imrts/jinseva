@@ -2,22 +2,28 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.routes import (
     auth,
     bookings,
     communication,
+    dashboard,
     donations,
     events,
     expenses,
     income,
     inventory,
     me,
+    media,
+    public,
+    reports,
     roles,
     staff,
     users,
 )
+from app.api.routes.media import UPLOAD_DIR
 from app.core.config import settings
 from app.core.database import Base, engine
 from app.models import (  # noqa: F401 — register mappers for create_all
@@ -32,8 +38,8 @@ from app.models import (  # noqa: F401 — register mappers for create_all
     ExpenseCategory,
     Income,
     InventoryItem,
+    Media,
     MessageTemplate,
-    Notification,
     Role,
     Staff,
     Supplier,
@@ -50,6 +56,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve uploaded media files (photos/videos) at /uploads/<file>.
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 
 @app.on_event("startup")
@@ -97,3 +106,7 @@ app.include_router(inventory.router, prefix="/api")
 app.include_router(staff.router, prefix="/api")
 app.include_router(communication.router, prefix="/api")
 app.include_router(me.router, prefix="/api")
+app.include_router(dashboard.router, prefix="/api")
+app.include_router(reports.router, prefix="/api")
+app.include_router(media.router, prefix="/api")
+app.include_router(public.router, prefix="/api")

@@ -19,7 +19,14 @@
       "PowerShell(python -m pip install --disable-pip-version-check -q -r \"d:\\\\Projects\\\\TempleManagement\\\\backend\\\\requirements.txt\")",
       "PowerShell(if \\($?\\) { \"INSTALL OK\" } else { \"INSTALL FAILED\" })",
       "PowerShell(Set-Location \"d:\\\\Projects\\\\TempleManagement\\\\apps\\\\backend\"; $env:PYTHONUTF8=\"1\"; python -c \"import app.main; print\\('APP IMPORT OK'\\)\"; if\\($?\\){ python seed.py })",
-      "PowerShell(\"deleted Donate.jsx\")"
+      "PowerShell(\"deleted Donate.jsx\")",
+      "Bash(cd \"d:/Projects/TempleManagement\")",
+      "Bash(echo '===== __TRACKED_VAR__ =====')",
+      "Bash(cat apps/frontend/src/dashboard/components/widgets/__TRACKED_VAR__.jsx)",
+      "Bash(grep -rln -iE \"notification\" apps/frontend/src packages/shared)",
+      "Bash(grep -rln -iE \"notification\" apps/backend/app apps/backend/seed.py)",
+      "Bash(ls apps/frontend/src/dashboard/pages/communication/)",
+      "Bash(grep -rln \"Announcement\\\\|communicationApi\\\\|MessageTemplate\" apps/frontend/src/dashboard/pages/communication/)"
     ]
   },
   "indexing": {

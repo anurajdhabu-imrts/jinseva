@@ -1,6 +1,10 @@
 from datetime import date as _date
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
+
+
+class EmailReceiptRequest(BaseModel):
+    to: EmailStr | None = None  # falls back to the donor's email on file
 
 
 class DonationCreate(BaseModel):
@@ -8,6 +12,7 @@ class DonationCreate(BaseModel):
     email: str = ""
     phone: str = ""
     type: str = ""
+    property: str = ""
     amount: int = Field(gt=0)
     method: str = "UPI"
     date: _date | None = None
@@ -22,6 +27,7 @@ class DonationUpdate(BaseModel):
     email: str | None = None
     phone: str | None = None
     type: str | None = None
+    property: str | None = None
     amount: int | None = Field(default=None, gt=0)
     method: str | None = None
     date: _date | None = None

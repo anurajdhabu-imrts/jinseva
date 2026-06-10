@@ -5,6 +5,7 @@ import { useTheme } from '@context/ThemeContext';
 import { cn } from '@utils/cn';
 import TopBar from './TopBar';
 import { JainFlagBadge } from '@web/components/JainFlagStripe';
+import LanguageSwitcher from '@components/LanguageSwitcher';
 
 const navItems = [
   { to: '/',          label: 'Home' },
@@ -103,6 +104,9 @@ export default function PublicNavbar() {
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
+
+            {/* Language */}
+            <LanguageSwitcher />
 
             {/* Login pill */}
             <Link

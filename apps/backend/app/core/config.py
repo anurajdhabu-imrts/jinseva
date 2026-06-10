@@ -31,6 +31,25 @@ class Settings(BaseSettings):
     seed_admin_email: str = "admin@jinalaya.org"
     seed_admin_password: str = "ChangeMe@123"
 
+    # ── Email (SMTP) ──────────────────────────────────────────────
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_user: str = ""          # full Gmail address
+    smtp_password: str = ""      # Gmail App Password (16 chars, not the login password)
+    smtp_from_name: str = "Shree Jinalaya"
+    smtp_from_email: str = ""    # defaults to smtp_user when empty
+    # Public origin used to turn relative "/uploads/..." image paths into
+    # absolute URLs inside emails.
+    public_api_url: str = "http://localhost:5000"
+
+    @property
+    def email_enabled(self) -> bool:
+        return bool(self.smtp_user and self.smtp_password)
+
+    @property
+    def mail_from(self) -> str:
+        return self.smtp_from_email or self.smtp_user
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

@@ -6,15 +6,22 @@ import Button from '@components/Button';
 import Card from '@components/Card';
 import Badge from '@components/Badge';
 import SearchBar from '@components/SearchBar';
+import { Select } from '@components/Input';
 import { useToast } from '@context/ToastContext';
-import { eventsApi, apiError } from '@services/rbacService';
-import { formatCurrency, formatDate, STATUS_COLORS } from '@utils/constants';
+import { useAuth } from '@context/AuthContext';
+import { eventsApi, resolveMedia, apiError } from '@services/rbacService';
+import { formatCurrency, formatDate, STATUS_COLORS, EVENT_CATEGORIES, onImgError } from '@utils/constants';
 
 export default function EventList() {
   const nav = useNavigate();
   const { toast } = useToast();
+  const { hasPermission } = useAuth();
+  const canCreate = hasPermission('events.create');
+  const canEdit = hasPermission('events.update');
+  const canDelete = hasPermission('events.delete');
   const [view, setView] = useState('grid');
   const [filter, setFilter] = useState('all');
+  const [cat, setCat] = useState('All');
   const [search, setSearch] = useState('');
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,9 +49,10 @@ export default function EventList() {
           e.title.toLowerCase().includes(search.toLowerCase()) ||
           (e.location || '').toLowerCase().includes(search.toLowerCase());
         const matchFilter = filter === 'all' || e.status === filter;
-        return matchSearch && matchFilter;
+        const matchCat = cat === 'All' || e.category === cat;
+        return matchSearch && matchFilter && matchCat;
       }),
-    [events, search, filter],
+    [events, search, filter, cat],
   );
 
   const handleDelete = async (e, ev) => {
@@ -71,9 +79,11 @@ export default function EventList() {
             <Link to="/events/analytics">
               <Button variant="secondary" icon={BarChart3}>Analytics</Button>
             </Link>
-            <Link to="/events/create">
-              <Button icon={Plus}>Create Event</Button>
-            </Link>
+            {canCreate && (
+              <Link to="/events/create">
+                <Button icon={Plus}>Create Event</Button>
+              </Link>
+            )}
           </>
         }
       />
@@ -82,6 +92,7 @@ export default function EventList() {
       <Card className="p-4">
         <div className="flex flex-col md:flex-row gap-3">
           <SearchBar value={search} onChange={setSearch} placeholder="Search events…" className="md:max-w-sm" />
+          <Select value={cat} onChange={(e) => setCat(e.target.value)} options={['All', ...EVENT_CATEGORIES]} className="md:max-w-[200px]" />
           <div className="flex flex-wrap gap-2 md:ml-auto">
             {['all', 'upcoming', 'completed', 'cancelled'].map((f) => (
               <button
@@ -121,10 +132,11 @@ export default function EventList() {
             return (
               <Card key={e.id} hover className="overflow-hidden group flex flex-col">
                 <Link to={`/events/${e.id}`} className="block aspect-[16/10] overflow-hidden relative">
-                  <img src={e.image} alt={e.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-3 left-3 flex gap-2">
+                  <img src={resolveMedia(e.image)} onError={onImgError} alt={e.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                     <Badge variant={STATUS_COLORS[e.status]}>{e.status}</Badge>
                     <Badge variant="primary">{e.type}</Badge>
+                    {e.category && <Badge variant="neutral">{e.category}</Badge>}
                   </div>
                   <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur text-white text-xs font-medium">
                     {formatDate(e.date, { day: '2-digit', month: 'short' })}
@@ -154,8 +166,8 @@ export default function EventList() {
                     <Link to={`/events/${e.id}`} className="flex-1">
                       <Button variant="secondary" size="sm" icon={Eye} fullWidth>View</Button>
                     </Link>
-                    <Button variant="ghost" size="sm" className="px-2.5" onClick={() => nav(`/events/${e.id}/edit`)}><Edit className="w-4 h-4" /></Button>
-                    <Button variant="ghost" size="sm" className="px-2.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10" onClick={(ev) => handleDelete(ev, e)}><Trash2 className="w-4 h-4" /></Button>
+                    {canEdit && <Button variant="ghost" size="sm" className="px-2.5" onClick={() => nav(`/events/${e.id}/edit`)}><Edit className="w-4 h-4" /></Button>}
+                    {canDelete && <Button variant="ghost" size="sm" className="px-2.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10" onClick={(ev) => handleDelete(ev, e)}><Trash2 className="w-4 h-4" /></Button>}
                   </div>
                 </div>
               </Card>
@@ -170,7 +182,7 @@ export default function EventList() {
           <div className="divide-y divide-sand-100 dark:divide-neutral-800">
             {filtered.map((e) => (
               <Link to={`/events/${e.id}`} key={e.id} className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 hover:bg-sand-50/50 dark:hover:bg-neutral-800/30 transition-colors">
-                <img src={e.image} alt={e.title} className="w-full md:w-32 h-20 rounded-xl object-cover" />
+                <img src={resolveMedia(e.image)} onError={onImgError} alt={e.title} className="w-full md:w-32 h-20 rounded-xl object-cover" />
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-serif font-semibold text-neutral-900 dark:text-white">{e.title}</h3>
@@ -188,6 +200,7 @@ export default function EventList() {
                     <div className="text-sm font-semibold gradient-text">{formatCurrency(e.raised)}</div>
                     <div className="text-xs text-neutral-500">of {formatCurrency(e.budget)}</div>
                   </div>
+                  {canEdit && (
                   <button
                     onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); nav(`/events/${e.id}/edit`); }}
                     className="p-1.5 rounded-lg hover:bg-sand-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-saffron-600"
@@ -195,6 +208,8 @@ export default function EventList() {
                   >
                     <Edit className="w-4 h-4" />
                   </button>
+                  )}
+                  {canDelete && (
                   <button
                     onClick={(ev) => handleDelete(ev, e)}
                     className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 text-rose-600"
@@ -202,6 +217,7 @@ export default function EventList() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
+                  )}
                 </div>
               </Link>
             ))}

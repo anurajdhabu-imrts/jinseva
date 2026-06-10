@@ -5,13 +5,13 @@ import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Input, { Select, Textarea } from '@components/Input';
 import Button from '@components/Button';
-import { EXPENSE_CATEGORIES, PAYMENT_METHODS } from '@utils/constants';
+import { EXPENSE_CATEGORIES, PAYMENT_METHODS, PROPERTY_CATEGORIES } from '@utils/constants';
 import { useToast } from '@context/ToastContext';
 import { expensesApi, apiError } from '@services/rbacService';
 
 export default function AddExpense() {
   const [form, setForm] = useState({
-    description: '', category: EXPENSE_CATEGORIES[0], amount: '',
+    description: '', category: EXPENSE_CATEGORIES[0], property: PROPERTY_CATEGORIES[0], amount: '',
     vendor: '', date: '', method: PAYMENT_METHODS[0], notes: '',
   });
   const [saving, setSaving] = useState(false);
@@ -29,6 +29,7 @@ export default function AddExpense() {
     try {
       await expensesApi.create({
         category: form.category,
+        property: form.property,
         description: form.description.trim(),
         vendor: form.vendor.trim(),
         amount,
@@ -60,6 +61,7 @@ export default function AddExpense() {
             <CardHeader title="Expense Details" />
             <CardBody className="space-y-4">
               <Input label="Description" icon={FileText} placeholder="What was this expense for?" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
+              <Select label="Property / Place" options={PROPERTY_CATEGORIES} value={form.property} onChange={(e) => setForm({ ...form, property: e.target.value })} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Select label="Category" options={EXPENSE_CATEGORIES} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
                 <Input label="Amount" icon={IndianRupee} type="number" placeholder="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />

@@ -4,7 +4,15 @@
 //  pages can use it directly. Errors bubble up as axios errors —
 //  catch them in the page and surface err.response.data.message.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-import api, { TOKEN_KEY } from './api';
+import api, { TOKEN_KEY, API_BASE } from './api';
+
+// Resolve a media URL: uploaded files come back as "/uploads/..." (relative to
+// the API origin); external media is already an absolute URL.
+const FILES_BASE = API_BASE.replace(/\/api\/?$/, '');
+export function resolveMedia(url) {
+  if (!url) return '';
+  return url.startsWith('/uploads') ? FILES_BASE + url : url;
+}
 
 export function setToken(token) {
   if (token) localStorage.setItem(TOKEN_KEY, token);
@@ -169,6 +177,10 @@ export const donationsApi = {
   async remove(id) {
     await api.delete(`/donations/${id}`);
   },
+  async emailReceipt(id, to) {
+    const { data } = await api.post(`/donations/${id}/email-receipt`, to ? { to } : {});
+    return data; // { success, message }
+  },
 };
 
 // ── Income ───────────────────────────────────────────────────────
@@ -319,6 +331,14 @@ export const inventoryApi = {
   },
 };
 
+// ── Dashboard overview ───────────────────────────────────────────
+export const dashboardApi = {
+  async overview() {
+    const { data } = await api.get('/dashboard/overview');
+    return data.data; // { stats, monthlyIncomeExpense, donationCategories, eventRevenue, recentTransactions, upcomingEvents, notifications, activitySummary }
+  },
+};
+
 // ── Staff & Volunteers ───────────────────────────────────────────
 export const staffApi = {
   async list(params = {}) {
@@ -384,7 +404,11 @@ export const communicationApi = {
   },
   async createAnnouncement(payload) {
     const { data } = await api.post('/communication/announcements', payload);
-    return data.data;
+    return data; // { data, emailed, note }
+  },
+  async testEmail(to) {
+    const { data } = await api.post('/communication/test-email', { to });
+    return data; // { success, message }
   },
   async removeAnnouncement(id) {
     await api.delete(`/communication/announcements/${id}`);
@@ -404,23 +428,6 @@ export const communicationApi = {
   async removeTemplate(id) {
     await api.delete(`/communication/templates/${id}`);
   },
-  async notifications() {
-    const { data } = await api.get('/communication/notifications');
-    return data; // { count, unread, data }
-  },
-  async createNotification(payload) {
-    const { data } = await api.post('/communication/notifications', payload);
-    return data.data;
-  },
-  async markRead(id) {
-    await api.post(`/communication/notifications/${id}/read`);
-  },
-  async markAllRead() {
-    await api.post('/communication/notifications/read-all');
-  },
-  async removeNotification(id) {
-    await api.delete(`/communication/notifications/${id}`);
-  },
 };
 
 // ── Devotee Portal (current user's own data) ─────────────────────
@@ -437,12 +444,87 @@ export const meApi = {
     const { data } = await api.get('/me/bookings');
     return data; // { count, data }
   },
-  async notifications() {
-    const { data } = await api.get('/me/notifications');
-    return data; // { count, unread, data }
-  },
   async updateProfile(payload) {
     const { data } = await api.put('/me/profile', payload);
     return data.user;
+  },
+  async changePassword(currentPassword, newPassword) {
+    const { data } = await api.post('/me/change-password', { currentPassword, newPassword });
+    return data; // { success, message }
+  },
+};
+
+// ── Reports & Analytics ──────────────────────────────────────────
+export const reportsApi = {
+  async summary() {
+    const { data } = await api.get('/reports/summary');
+    return data.data; // { totalRevenue, totalExpenses, netSurplus, eventsHosted, monthly, eventRevenue }
+  },
+  async revenue() {
+    const { data } = await api.get('/reports/revenue');
+    return data.data; // { totalRevenue, donations, poojaFees, miscIncome, monthly, byCategory }
+  },
+  async expense() {
+    const { data } = await api.get('/reports/expense');
+    return data.data; // { totalExpense, avgMonthly, transactions, vendors, byCategory, monthly }
+  },
+  async events() {
+    const { data } = await api.get('/reports/events');
+    return data.data; // { byEvent, count, totalRaised, totalAttendees, bestEvent, bestEventRaised }
+  },
+  async byProperty() {
+    const { data } = await api.get('/reports/by-property');
+    return data.data; // { rows:[{property,donations,income,revenue,expenses,net,color}], totals }
+  },
+};
+
+// ── Public (unauthenticated) — marketing website ─────────────────
+export const publicApi = {
+  async festivals() {
+    const { data } = await api.get('/public/festivals');
+    return data.data; // [{ id, title, type, category, date, time, location, description, image }]
+  },
+  async gallery() {
+    const { data } = await api.get('/public/gallery');
+    return data.data; // [{ id, src, caption, category, url, ... }]
+  },
+  async contact(payload) {
+    const { data } = await api.post('/public/contact', payload);
+    return data; // { success, message, note }
+  },
+};
+
+// ── Media (photos & videos) ──────────────────────────────────────
+export const mediaApi = {
+  async list(params = {}) {
+    const { data } = await api.get('/media', { params });
+    return data.data;
+  },
+  async categories() {
+    const { data } = await api.get('/media/categories');
+    return data.data;
+  },
+  async create(payload) {
+    const { data } = await api.post('/media', payload);
+    return data.data;
+  },
+  async upload(files, category = 'Uncategorized') {
+    const fd = new FormData();
+    Array.from(files).forEach((f) => fd.append('files', f));
+    fd.append('category', category);
+    // The api interceptor strips the JSON Content-Type for FormData so the
+    // browser adds the multipart boundary itself.
+    const { data } = await api.post('/media/upload', fd);
+    return data; // { count, data }
+  },
+  // Upload a single image (e.g. an event banner) and get back its URL only.
+  async uploadFile(file) {
+    const fd = new FormData();
+    fd.append('file', file);
+    const { data } = await api.post('/media/file', fd);
+    return data.url; // "/uploads/<file>"
+  },
+  async remove(id) {
+    await api.delete(`/media/${id}`);
   },
 };

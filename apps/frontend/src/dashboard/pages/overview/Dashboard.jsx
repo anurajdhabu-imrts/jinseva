@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Coins, HeartHandshake, CalendarRange, Users, Download, Plus, Sparkles, Sun
@@ -8,18 +10,42 @@ import DonationCategoriesChart from '@dashboard/components/widgets/DonationCateg
 import EventRevenueChart from '@dashboard/components/widgets/EventRevenueChart';
 import RecentTransactions from '@dashboard/components/widgets/RecentTransactions';
 import UpcomingEvents from '@dashboard/components/widgets/UpcomingEvents';
-import NotificationsPanel from '@dashboard/components/widgets/NotificationsPanel';
 import CalendarWidget from '@dashboard/components/widgets/CalendarWidget';
 import ActivitySummary from '@dashboard/components/widgets/ActivitySummary';
 import Button from '@components/Button';
-import { dashboardStats } from '@data/mockData';
 import { formatCurrency } from '@utils/constants';
 import { useAuth } from '@context/AuthContext';
+import { useToast } from '@context/ToastContext';
+import { dashboardApi, apiError } from '@services/rbacService';
+
+const EMPTY = {
+  stats: { totalDonations: 0, totalExpenses: 0, upcomingEvents: 0, registeredDevotees: 0 },
+  monthlyIncomeExpense: [], donationCategories: [], eventRevenue: [],
+  recentTransactions: [], upcomingEvents: [], activitySummary: [],
+};
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const nav = useNavigate();
+  const [d, setD] = useState(EMPTY);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Suprabhat' : hour < 17 ? 'Jai Jinendra' : 'Shubh Sandhya';
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await dashboardApi.overview();
+        if (!cancelled) setD({ ...EMPTY, ...data });
+      } catch (err) {
+        toast.error(apiError(err));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [toast]);
+
+  const s = d.stats;
 
   return (
     <div className="space-y-6">
@@ -44,11 +70,11 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button className="px-4 py-2.5 rounded-xl bg-white text-saffron-700 font-medium hover:bg-white/95 shadow-lg inline-flex items-center gap-2 text-sm">
+            <button onClick={() => nav('/donations/new')} className="px-4 py-2.5 rounded-xl bg-white text-saffron-700 font-medium hover:bg-white/95 shadow-lg inline-flex items-center gap-2 text-sm">
               <Plus className="w-4 h-4" /> New Donation
             </button>
-            <button className="px-4 py-2.5 rounded-xl bg-white/15 backdrop-blur hover:bg-white/25 font-medium inline-flex items-center gap-2 text-sm border border-white/20">
-              <Download className="w-4 h-4" /> Export Report
+            <button onClick={() => nav('/reports')} className="px-4 py-2.5 rounded-xl bg-white/15 backdrop-blur hover:bg-white/25 font-medium inline-flex items-center gap-2 text-sm border border-white/20">
+              <Download className="w-4 h-4" /> Reports
             </button>
           </div>
         </div>
@@ -59,32 +85,28 @@ export default function Dashboard() {
         <StatsCard
           icon={HeartHandshake}
           label="Total Donations"
-          value={formatCurrency(dashboardStats.totalDonations)}
-          growth={dashboardStats.donationGrowth}
+          value={formatCurrency(s.totalDonations)}
           tone="primary"
           delay={0}
         />
         <StatsCard
           icon={Coins}
           label="Total Expenses"
-          value={formatCurrency(dashboardStats.totalExpenses)}
-          growth={dashboardStats.expenseGrowth}
+          value={formatCurrency(s.totalExpenses)}
           tone="rose"
           delay={0.05}
         />
         <StatsCard
           icon={CalendarRange}
           label="Upcoming Events"
-          value={dashboardStats.upcomingEvents}
-          growth={dashboardStats.eventsGrowth}
+          value={String(s.upcomingEvents)}
           tone="gold"
           delay={0.1}
         />
         <StatsCard
           icon={Users}
           label="Registered Devotees"
-          value={dashboardStats.registeredDevotees.toLocaleString('en-IN')}
-          growth={dashboardStats.devoteesGrowth}
+          value={Number(s.registeredDevotees).toLocaleString('en-IN')}
           tone="violet"
           delay={0.15}
         />
@@ -93,24 +115,23 @@ export default function Dashboard() {
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
-          <IncomeExpenseChart />
+          <IncomeExpenseChart data={d.monthlyIncomeExpense} />
         </div>
-        <DonationCategoriesChart />
+        <DonationCategoriesChart data={d.donationCategories} />
       </div>
 
       {/* Mid row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
-          <EventRevenueChart />
+          <EventRevenueChart data={d.eventRevenue} />
         </div>
-        <ActivitySummary />
+        <ActivitySummary data={d.activitySummary} />
       </div>
 
       {/* Bottom row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <RecentTransactions />
-        <UpcomingEvents />
-        <NotificationsPanel />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <RecentTransactions data={d.recentTransactions} />
+        <UpcomingEvents data={d.upcomingEvents} />
       </div>
 
       {/* Calendar */}

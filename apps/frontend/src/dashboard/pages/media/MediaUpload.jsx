@@ -1,24 +1,26 @@
 import { useState } from 'react';
-import { Upload, Image as ImageIcon, Video, X, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Upload, Image as ImageIcon, Video, X } from 'lucide-react';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
-import Input, { Select, Textarea } from '@components/Input';
+import { Select } from '@components/Input';
 import Button from '@components/Button';
-import Badge from '@components/Badge';
 import { useToast } from '@context/ToastContext';
+import { mediaApi, apiError } from '@services/rbacService';
+
+const CATEGORIES = ['Daily Rituals', 'Festivals', 'Seva', 'Architecture', 'Events', 'Aarti', 'Pooja', 'Discourse'];
 
 export default function MediaUpload() {
-  const [files, setFiles] = useState([]);
+  const nav = useNavigate();
+  const [files, setFiles] = useState([]); // real File objects
   const [dragging, setDragging] = useState(false);
+  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   const handleFiles = (list) => {
-    const arr = Array.from(list).map((f) => ({
-      name: f.name,
-      size: (f.size / 1024 / 1024).toFixed(2),
-      type: f.type.startsWith('image') ? 'image' : 'video',
-      progress: 100,
-    }));
+    const arr = Array.from(list);
+    if (!arr.length) return;
     setFiles((prev) => [...prev, ...arr]);
     toast.success(`${arr.length} file(s) added`);
   };
@@ -27,6 +29,21 @@ export default function MediaUpload() {
     e.preventDefault();
     setDragging(false);
     handleFiles(e.dataTransfer.files);
+  };
+
+  const upload = async () => {
+    if (files.length === 0) return toast.error('Add at least one file.');
+    setUploading(true);
+    try {
+      const res = await mediaApi.upload(files, category);
+      toast.success(`Uploaded ${res.count} file(s) to the archive.`);
+      setFiles([]);
+      nav('/media');
+    } catch (err) {
+      toast.error(apiError(err));
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -64,28 +81,25 @@ export default function MediaUpload() {
             <Card>
               <CardHeader title="Upload queue" subtitle={`${files.length} files`} />
               <CardBody className="space-y-3">
-                {files.map((f, i) => (
+                {files.map((f, i) => {
+                  const isImage = (f.type || '').startsWith('image');
+                  return (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-sand-50 dark:bg-neutral-800/50">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white ${
-                      f.type === 'image' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' : 'bg-gradient-to-br from-violet-400 to-violet-600'
+                      isImage ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' : 'bg-gradient-to-br from-violet-400 to-violet-600'
                     }`}>
-                      {f.type === 'image' ? <ImageIcon className="w-5 h-5" /> : <Video className="w-5 h-5" />}
+                      {isImage ? <ImageIcon className="w-5 h-5" /> : <Video className="w-5 h-5" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{f.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <div className="flex-1 h-1.5 bg-sand-200 dark:bg-neutral-700 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-saffron-500 to-saffron-600 rounded-full" style={{ width: `${f.progress}%` }} />
-                        </div>
-                        <span className="text-xs text-neutral-500">{f.size} MB</span>
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                      </div>
+                      <p className="text-xs text-neutral-500 mt-0.5">{(f.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                     <button onClick={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))} className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 text-rose-500">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                ))}
+                  );
+                })}
               </CardBody>
             </Card>
           ) : (
@@ -97,13 +111,12 @@ export default function MediaUpload() {
           )}
         </div>
         <Card>
-          <CardHeader title="Metadata" subtitle="Apply to all uploads" />
+          <CardHeader title="Metadata" subtitle="Applied to all uploads" />
           <CardBody className="space-y-3">
-            <Select label="Category" options={['Daily Rituals', 'Festivals', 'Seva', 'Architecture', 'Events']} />
-            <Select label="Linked event" options={['None', 'Maha Shivaratri', 'Janmashtami', 'Navaratri']} />
-            <Input label="Tags" placeholder="aarti, evening, sanctum" />
-            <Textarea label="Caption" rows={3} placeholder="Describe these moments…" />
-            <Button fullWidth>Save All</Button>
+            <Select label="Category" options={CATEGORIES} value={category} onChange={(e) => setCategory(e.target.value)} />
+            <Button fullWidth icon={Upload} loading={uploading} onClick={upload} disabled={files.length === 0}>
+              Upload {files.length > 0 ? `${files.length} file(s)` : ''}
+            </Button>
           </CardBody>
         </Card>
       </div>

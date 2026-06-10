@@ -83,7 +83,7 @@ export function Select({ label, icon: Icon, error, hint, options = [], className
         )}
         <select
           className={cn(
-            'w-full px-4 py-2.5 rounded-xl bg-white dark:bg-neutral-900',
+            'w-full px-4 py-2.5 pr-10 rounded-xl bg-white dark:bg-neutral-900',
             'border border-sand-200 dark:border-neutral-700',
             'text-neutral-900 dark:text-neutral-100',
             'focus:outline-none focus:ring-2 focus:ring-saffron-500/40 focus:border-saffron-500',
@@ -102,9 +102,8 @@ export function Select({ label, icon: Icon, error, hint, options = [], className
             )
           )}
         </select>
-        <svg className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
+        {/* Dropdown arrow is drawn via the global `select` rule in index.css
+            (background-image), so we don't render a custom chevron here. */}
       </div>
       {error && <p className="text-xs text-rose-600 mt-1.5">{error}</p>}
       {hint && !error && <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1.5">{hint}</p>}

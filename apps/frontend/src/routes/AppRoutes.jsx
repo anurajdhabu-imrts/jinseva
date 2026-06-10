@@ -73,12 +73,10 @@ import DonationHistory   from '@dashboard/pages/user/DonationHistory';
 import BookingHistory    from '@dashboard/pages/user/BookingHistory';
 import ProfileSettings   from '@dashboard/pages/user/ProfileSettings';
 import MembershipCard    from '@dashboard/pages/user/MembershipCard';
-import UserNotifications from '@dashboard/pages/user/UserNotifications';
 
 // ── Communication ──
 import Announcement       from '@dashboard/pages/communication/Announcement';
 import Templates          from '@dashboard/pages/communication/Templates';
-import NotificationCenter from '@dashboard/pages/communication/NotificationCenter';
 import GreetingCards      from '@dashboard/pages/communication/GreetingCards';
 
 // ── Reports ──
@@ -86,6 +84,7 @@ import Reports          from '@dashboard/pages/reports/Reports';
 import RevenueAnalytics from '@dashboard/pages/reports/RevenueAnalytics';
 import ExpenseAnalytics from '@dashboard/pages/reports/ExpenseAnalytics';
 import EventPerformance from '@dashboard/pages/reports/EventPerformance';
+import PropertyReport   from '@dashboard/pages/reports/PropertyReport';
 
 // ── Media ──
 import PhotoGallery from '@dashboard/pages/media/PhotoGallery';
@@ -178,16 +177,15 @@ export default function AppRoutes() {
         <Route path="/user/bookings"        element={<BookingHistory />} />
         <Route path="/user/profile"         element={<ProfileSettings />} />
         <Route path="/user/membership"      element={<MembershipCard />} />
-        <Route path="/user/notifications"   element={<UserNotifications />} />
 
         {/* Communication */}
         <Route path="/communication"               element={<Announcement />} />
         <Route path="/communication/templates"     element={<Templates />} />
-        <Route path="/communication/notifications" element={<NotificationCenter />} />
         <Route path="/communication/greetings"     element={<GreetingCards />} />
 
         {/* Reports */}
         <Route path="/reports"          element={<Reports />} />
+        <Route path="/reports/property"  element={<PropertyReport />} />
         <Route path="/reports/revenue"   element={<RevenueAnalytics />} />
         <Route path="/reports/expense"   element={<ExpenseAnalytics />} />
         <Route path="/reports/events"    element={<EventPerformance />} />

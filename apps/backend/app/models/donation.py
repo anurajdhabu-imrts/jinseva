@@ -17,6 +17,8 @@ class Donation(Base):
     email: Mapped[str] = mapped_column(String(255), default="", nullable=False)
     phone: Mapped[str] = mapped_column(String(40), default="", nullable=False)
     type: Mapped[str] = mapped_column(String(80), default="", nullable=False)
+    # Temple property/place this donation belongs to (reports break down by it).
+    property: Mapped[str] = mapped_column(String(80), default="", nullable=False)
     amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     method: Mapped[str] = mapped_column(String(40), default="UPI", nullable=False)
     donation_date: Mapped[date | None] = mapped_column(Date, nullable=True)
@@ -39,6 +41,7 @@ class Donation(Base):
             "email": "-" if self.anonymous else self.email,
             "phone": "-" if self.anonymous else self.phone,
             "type": self.type,
+            "property": self.property,
             "amount": self.amount,
             "method": self.method,
             "date": self.donation_date.isoformat() if self.donation_date else None,

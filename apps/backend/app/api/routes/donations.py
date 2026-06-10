@@ -3,11 +3,13 @@ from sqlalchemy import func, literal_column, or_, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import require_permissions
+from app.core.config import settings
 from app.core.database import get_db
 from app.models.donation import Donation
 from app.models.event import Event, EventDonation
-from app.schemas.donation import DonationCreate, DonationUpdate
+from app.schemas.donation import DonationCreate, DonationUpdate, EmailReceiptRequest
 from app.services.codes import generate_code
+from app.services.email import receipt_html, send_email
 
 router = APIRouter(prefix="/donations", tags=["donations"])
 
@@ -167,6 +169,26 @@ def get_donation(code: str, db: Session = Depends(get_db)):
     return {"success": True, "data": _get_or_404(db, code).to_dict()}
 
 
+@router.post("/{code}/email-receipt", dependencies=[Depends(can_view)])
+def email_receipt(code: str, body: EmailReceiptRequest, db: Session = Depends(get_db)):
+    """Email the donation receipt to the donor (or a provided address)."""
+    if not settings.email_enabled:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email is not configured on the server.")
+    donation = _get_or_404(db, code)
+    to = (str(body.to) if body.to else "") or (donation.email or "")
+    to = to.strip()
+    if not to or to == "-":
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "No email address on file for this donor — provide one to send the receipt.",
+        )
+    try:
+        send_email(to, f"Donation Receipt {donation.receipt}", receipt_html(donation.to_dict()))
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, f"Email send failed: {exc}")
+    return {"success": True, "message": f"Receipt emailed to {to}"}
+
+
 @router.post("", status_code=status.HTTP_201_CREATED, dependencies=[Depends(can_create)])
 def create_donation(body: DonationCreate, db: Session = Depends(get_db)):
     code = generate_code(db, Donation, Donation.code, "DON-", pad=4, start=2401)
@@ -177,6 +199,7 @@ def create_donation(body: DonationCreate, db: Session = Depends(get_db)):
         email=body.email,
         phone=body.phone,
         type=body.type,
+        property=body.property,
         amount=body.amount,
         method=body.method,
         donation_date=body.date,

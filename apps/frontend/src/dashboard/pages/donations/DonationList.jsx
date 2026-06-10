@@ -87,6 +87,7 @@ export default function DonationList() {
     { key: 'type', title: 'Type', render: (v, row) => (
       <Badge variant={row.source === 'event' ? 'success' : 'primary'}>{v}</Badge>
     ) },
+    { key: 'property', title: 'Property', render: (v) => v ? <Badge variant="neutral">{v}</Badge> : <span className="text-neutral-400">—</span> },
     { key: 'amount', title: 'Amount', align: 'right', render: (v) => <span className="font-semibold gradient-text">{formatCurrency(v)}</span> },
     { key: 'method', title: 'Method', render: (v) => <span className="text-sm">{v}</span> },
     { key: 'date', title: 'Date', render: (v) => formatDate(v) },

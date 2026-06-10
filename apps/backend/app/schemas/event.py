@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 class EventCreate(BaseModel):
     title: str = Field(min_length=1)
     type: str = "Festival"
+    category: str = ""
     date: _date | None = None
     time: str = ""
     endTime: str = ""
@@ -22,6 +23,7 @@ class EventCreate(BaseModel):
 class EventUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1)
     type: str | None = None
+    category: str | None = None
     date: _date | None = None
     time: str | None = None
     endTime: str | None = None

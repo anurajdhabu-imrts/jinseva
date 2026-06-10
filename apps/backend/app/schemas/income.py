@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 class IncomeCreate(BaseModel):
     category: str = "Other"
+    property: str = ""
     description: str = Field(min_length=1)
     source: str = ""
     amount: int = Field(gt=0)
@@ -17,6 +18,7 @@ class IncomeCreate(BaseModel):
 
 class IncomeUpdate(BaseModel):
     category: str | None = None
+    property: str | None = None
     description: str | None = Field(default=None, min_length=1)
     source: str | None = None
     amount: int | None = Field(default=None, gt=0)

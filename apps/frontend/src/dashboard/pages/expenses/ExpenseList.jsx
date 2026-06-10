@@ -87,6 +87,7 @@ export default function ExpenseList() {
       </div>
     )},
     { key: 'category', title: 'Category', render: (v) => <Badge variant="neutral">{v}</Badge> },
+    { key: 'property', title: 'Property', render: (v) => v ? <Badge variant="primary">{v}</Badge> : <span className="text-neutral-400">—</span> },
     { key: 'amount', title: 'Amount', align: 'right', render: (v) => <span className="font-semibold text-rose-600">- {formatCurrency(v)}</span> },
     { key: 'method', title: 'Method' },
     { key: 'date', title: 'Date', render: (v) => formatDate(v) },

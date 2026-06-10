@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import DateTime, String, func
+from sqlalchemy import Date, DateTime, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -26,6 +26,12 @@ class User(Base):
     role_id: Mapped[str] = mapped_column(String(80), index=True, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="invited", nullable=False)
     avatar: Mapped[str] = mapped_column(String(500), default="", nullable=False)
+    # ── Profile fields (editable from the devotee portal) ──
+    phone: Mapped[str] = mapped_column(String(40), default="", nullable=False)
+    city: Mapped[str] = mapped_column(String(120), default="", nullable=False)
+    gotra: Mapped[str] = mapped_column(String(80), default="", nullable=False)
+    dob: Mapped[date | None] = mapped_column(Date, nullable=True)
+    bio: Mapped[str] = mapped_column(Text, default="", nullable=False)
     last_active: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
