@@ -528,3 +528,27 @@ export const mediaApi = {
     await api.delete(`/media/${id}`);
   },
 };
+
+// ── Lookups (admin-managed dropdown options) ─────────────────────
+export const lookupsApi = {
+  // Returns { category: [{ id, label, sortOrder, active }], … }
+  async all() {
+    const { data } = await api.get('/lookups');
+    return data.data;
+  },
+  async categories() {
+    const { data } = await api.get('/lookups/categories');
+    return data.data; // [{ key, label }]
+  },
+  async create(payload) {
+    const { data } = await api.post('/lookups', payload);
+    return data.data;
+  },
+  async update(id, payload) {
+    const { data } = await api.patch(`/lookups/${id}`, payload);
+    return data.data;
+  },
+  async remove(id) {
+    await api.delete(`/lookups/${id}`);
+  },
+};

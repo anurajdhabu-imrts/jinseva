@@ -15,7 +15,7 @@ import { useToast } from '@context/ToastContext';
 import { incomeApi, apiError } from '@services/rbacService';
 import { formatCurrency, formatDate, STATUS_COLORS, INCOME_CATEGORIES } from '@utils/constants';
 
-const CAT_COLORS = ['#c8102e', '#ffc01e', '#00843d', '#1a1b22', '#d68500', '#054624', '#761120'];
+const CAT_COLORS = ['#562F00', '#FF9644', '#FFCE99', '#562F00', '#562F00', '#562F00', '#562F00'];
 
 export default function IncomeList() {
   const { toast } = useToast();
@@ -147,8 +147,8 @@ export default function IncomeList() {
               <ResponsiveContainer>
                 <BarChart data={byCategory} margin={{ top: 5, right: 5, bottom: 5, left: -10 }}>
                   <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" vertical={false} />
-                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} interval={0} angle={-15} textAnchor="end" height={60} />
-                  <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `${v / 1000}k`} />
+                  <XAxis dataKey="name" stroke="#562F00" fontSize={11} interval={0} angle={-15} textAnchor="end" height={60} />
+                  <YAxis stroke="#562F00" fontSize={12} tickFormatter={(v) => `${v / 1000}k`} />
                   <Tooltip
                     contentStyle={{ backgroundColor: 'rgba(26,27,34,0.95)', border: 'none', borderRadius: 12, color: '#fff' }}
                     formatter={(v) => formatCurrency(v)}

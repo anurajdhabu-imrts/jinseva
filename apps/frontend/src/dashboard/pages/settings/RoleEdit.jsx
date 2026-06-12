@@ -11,8 +11,8 @@ import { rolesApi, apiError } from '@services/rbacService';
 import { PERMISSION_GROUPS, SYSTEM_ROLE_ADMIN } from '@data/permissions';
 
 const COLOR_OPTIONS = [
-  '#c8102e', '#ffc01e', '#00843d', '#054624', '#1a1b22',
-  '#0a2540', '#7c3aed', '#0891b2', '#d97706', '#be185d',
+  '#562F00', '#FF9644', '#FFCE99', '#562F00', '#562F00',
+  '#562F00', '#FFCE99', '#FFCE99', '#FF9644', '#562F00',
 ];
 
 export default function RoleEdit() {

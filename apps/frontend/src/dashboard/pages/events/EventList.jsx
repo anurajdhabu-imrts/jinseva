@@ -90,23 +90,29 @@ export default function EventList() {
 
       {/* Filter bar */}
       <Card className="p-4">
-        <div className="flex flex-col md:flex-row gap-3">
-          <SearchBar value={search} onChange={setSearch} placeholder="Search events…" className="md:max-w-sm" />
-          <Select value={cat} onChange={(e) => setCat(e.target.value)} options={['All', ...EVENT_CATEGORIES]} className="md:max-w-[200px]" />
-          <div className="flex flex-wrap gap-2 md:ml-auto">
-            {['all', 'upcoming', 'completed', 'cancelled'].map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3.5 py-2 rounded-xl text-sm font-medium capitalize transition-all ${
-                  filter === f
-                    ? 'bg-gradient-to-r from-saffron-500 to-saffron-600 text-white shadow-md'
-                    : 'bg-sand-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-sand-200 dark:hover:bg-neutral-700'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
+        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+          <SearchBar value={search} onChange={setSearch} placeholder="Search events…" className="lg:max-w-xs" />
+          <Select value={cat} onChange={(e) => setCat(e.target.value)} options={['All', ...EVENT_CATEGORIES]} className="lg:w-48 shrink-0" />
+
+          <div className="flex items-center gap-2 lg:ml-auto shrink-0">
+            {/* Status segmented control — single row, never wraps */}
+            <div className="flex items-center gap-1 bg-sand-100 dark:bg-neutral-800 rounded-xl p-1">
+              {['all', 'upcoming', 'completed', 'cancelled'].map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize whitespace-nowrap transition-all ${
+                    filter === f
+                      ? 'bg-saffron-500 text-white shadow-sm'
+                      : 'text-neutral-600 dark:text-neutral-300 hover:text-saffron-600'
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+
+            {/* View toggle */}
             <div className="flex bg-sand-100 dark:bg-neutral-800 rounded-xl p-1">
               <button onClick={() => setView('grid')} className={`p-1.5 rounded-lg ${view === 'grid' ? 'bg-white dark:bg-neutral-900 text-saffron-600 shadow' : 'text-neutral-500'}`}>
                 <Grid3X3 className="w-4 h-4" />

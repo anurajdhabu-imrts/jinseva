@@ -7,9 +7,13 @@ import Input, { Select, Textarea } from '@components/Input';
 import Button from '@components/Button';
 import { INCOME_CATEGORIES, PAYMENT_METHODS, PROPERTY_CATEGORIES } from '@utils/constants';
 import { useToast } from '@context/ToastContext';
+import { useLookups } from '@context/LookupContext';
 import { incomeApi, apiError } from '@services/rbacService';
 
 export default function AddIncome() {
+  const incomeCategories = useLookups('income_category', INCOME_CATEGORIES);
+  const properties = useLookups('property', PROPERTY_CATEGORIES);
+  const methods = useLookups('payment_method', PAYMENT_METHODS);
   const [form, setForm] = useState({
     description: '',
     category: INCOME_CATEGORIES[0],
@@ -76,14 +80,14 @@ export default function AddIncome() {
               />
               <Select
                 label="Property / Place"
-                options={PROPERTY_CATEGORIES}
+                options={properties}
                 value={form.property}
                 onChange={(e) => setForm({ ...form, property: e.target.value })}
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Select
                   label="Category"
-                  options={INCOME_CATEGORIES}
+                  options={incomeCategories}
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
                 />
@@ -117,7 +121,7 @@ export default function AddIncome() {
               </div>
               <Select
                 label="Payment Method"
-                options={PAYMENT_METHODS}
+                options={methods}
                 value={form.method}
                 onChange={(e) => setForm({ ...form, method: e.target.value })}
               />

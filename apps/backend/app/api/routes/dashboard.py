@@ -15,7 +15,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
-PALETTE = ["#ffc01e", "#c8102e", "#00843d", "#1a1b22", "#d68500", "#054624", "#761120"]
+PALETTE = ["#FF9644", "#562F00", "#FFCE99"]
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 

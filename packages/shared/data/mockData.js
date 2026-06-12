@@ -241,18 +241,18 @@ export const volunteersList = [
 ];
 
 export const galleryImages = [
-  { id: 1, src: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=800', caption: 'Mool Nayak Darshan',     category: 'Daily Darshan' },
-  { id: 2, src: 'https://images.unsplash.com/photo-1604608672516-f1b9b1e5e7e9?w=800', caption: 'Diwali Nirvana Mahotsav',category: 'Mahaparvas' },
-  { id: 3, src: 'https://images.unsplash.com/photo-1582558508092-c7a39fd14d05?w=800', caption: 'Pratahkal Snatra',       category: 'Daily Darshan' },
-  { id: 4, src: 'https://images.unsplash.com/photo-1518152006812-edab29b069ac?w=800', caption: 'Mahavir Jayanti',         category: 'Mahaparvas' },
-  { id: 5, src: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800', caption: 'Sadharmik Vatsalya',      category: 'Seva' },
-  { id: 6, src: 'https://images.unsplash.com/photo-1568438350562-2cae6d394ad0?w=800', caption: 'Shikhar Architecture',    category: 'Architecture' },
-  { id: 7, src: 'https://images.unsplash.com/photo-1583935767017-9a48f9b876a0?w=800', caption: 'Stavan Sandhya',           category: 'Events' },
-  { id: 8, src: 'https://images.unsplash.com/photo-1599627388842-0e94f5d04c0d?w=800', caption: 'Paryushan Bhakti',         category: 'Mahaparvas' },
-  { id: 9, src: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800', caption: 'Pratahkal Aarti',          category: 'Daily Darshan' },
-  { id: 10, src: 'https://images.unsplash.com/photo-1591777334964-301b6a2d3a26?w=800', caption: 'Derasar Garden',           category: 'Architecture' },
-  { id: 11, src: 'https://images.unsplash.com/photo-1561361398-a4b2cba8e7d6?w=800', caption: 'Snatak Ceremony',           category: 'Events' },
-  { id: 12, src: 'https://images.unsplash.com/photo-1602516961822-b6dffa739bbf?w=800', caption: 'Aayambil Tapasya',         category: 'Mahaparvas' },
+  { id: 1, src: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=800', caption: 'Mool Nayak Darshan',     category: 'Daily Darshan', eventId: null },
+  { id: 2, src: 'https://images.unsplash.com/photo-1604608672516-f1b9b1e5e7e9?w=800', caption: 'Diwali Nirvana Mahotsav',category: 'Mahaparvas', eventId: 'EVT-105' },
+  { id: 3, src: 'https://images.unsplash.com/photo-1582558508092-c7a39fd14d05?w=800', caption: 'Pratahkal Snatra',       category: 'Daily Darshan', eventId: null },
+  { id: 4, src: 'https://images.unsplash.com/photo-1518152006812-edab29b069ac?w=800', caption: 'Mahavir Jayanti',         category: 'Mahaparvas', eventId: 'EVT-102' },
+  { id: 5, src: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800', caption: 'Sadharmik Vatsalya',      category: 'Seva', eventId: null },
+  { id: 6, src: 'https://images.unsplash.com/photo-1568438350562-2cae6d394ad0?w=800', caption: 'Shikhar Architecture',    category: 'Architecture', eventId: null },
+  { id: 7, src: 'https://images.unsplash.com/photo-1583935767017-9a48f9b876a0?w=800', caption: 'Stavan Sandhya',           category: 'Events', eventId: 'EVT-106' },
+  { id: 8, src: 'https://images.unsplash.com/photo-1599627388842-0e94f5d04c0d?w=800', caption: 'Paryushan Bhakti',         category: 'Mahaparvas', eventId: 'EVT-101' },
+  { id: 9, src: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800', caption: 'Pratahkal Aarti',          category: 'Daily Darshan', eventId: null },
+  { id: 10, src: 'https://images.unsplash.com/photo-1591777334964-301b6a2d3a26?w=800', caption: 'Derasar Garden',           category: 'Architecture', eventId: null },
+  { id: 11, src: 'https://images.unsplash.com/photo-1561361398-a4b2cba8e7d6?w=800', caption: 'Snatak Ceremony',           category: 'Events', eventId: 'EVT-102' },
+  { id: 12, src: 'https://images.unsplash.com/photo-1602516961822-b6dffa739bbf?w=800', caption: 'Aayambil Tapasya',         category: 'Mahaparvas', eventId: 'EVT-103' },
 ];
 
 export const announcements = [

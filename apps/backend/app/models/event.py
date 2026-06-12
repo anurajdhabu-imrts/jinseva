@@ -33,7 +33,8 @@ class Event(Base):
     attendees: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     budget: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     description: Mapped[str] = mapped_column(Text, default="", nullable=False)
-    image: Mapped[str] = mapped_column(String(500), default="", nullable=False)
+    # Holds either a "/uploads/.." URL or an inline image data URL, so Text.
+    image: Mapped[str] = mapped_column(Text, default="", nullable=False)
     allow_donations: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(

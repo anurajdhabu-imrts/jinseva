@@ -29,6 +29,109 @@
     --color-accent:  255 192 30;
   }
 
+  /* ━━━ Themeable color ramps (channels = "R G B") ━━━
+     Global values reproduce the original palettes exactly, so every page
+     renders unchanged. The `.dashboard-theme` scope below overrides them to a
+     warm monochrome palette for the admin / auth / portal screens only. */
+  :root {
+    /* jain-yellow / saffron / gold (accent) */
+    --jy-50:255 250 230;  --jy-100:255 243 194; --jy-200:255 228 136; --jy-300:255 209 74; --jy-400:255 192 30;
+    --jy-500:245 168 0;   --jy-600:214 133 0;   --jy-700:168 95 2;    --jy-800:138 74 9;   --jy-900:116 61 14; --jy-950:67 32 10;
+    /* jain-red / maroon */
+    --jr-50:253 242 243;  --jr-100:252 228 230; --jr-200:250 198 204; --jr-300:245 155 166; --jr-400:237 103 123;
+    --jr-500:222 58 85;   --jr-600:200 16 46;   --jr-700:169 14 38;   --jr-800:139 14 34;   --jr-900:118 17 32; --jr-950:66 6 16;
+    /* jain-green / forest */
+    --jg-50:240 249 243;  --jg-100:220 240 226; --jg-200:187 225 201; --jg-300:139 201 165; --jg-400:89 171 125;
+    --jg-500:44 141 93;   --jg-600:0 132 61;    --jg-700:1 107 52;    --jg-800:4 85 44;     --jg-900:5 70 36;   --jg-950:2 38 20;
+    /* jain-black / ink */
+    --jk-50:245 245 246;  --jk-100:230 230 232; --jk-200:204 205 209; --jk-300:168 169 176; --jk-400:125 126 136;
+    --jk-500:93 94 106;   --jk-600:73 74 85;    --jk-700:60 61 70;    --jk-800:52 53 61;    --jk-900:26 27 34;  --jk-950:10 11 15;
+    /* jain-white / cream */
+    --jw-50:255 255 255;  --jw-100:253 252 250; --jw-200:250 246 238; --jw-300:245 236 217; --jw-400:236 220 184;
+    --jw-500:223 199 139; --jw-600:201 171 93;  --jw-700:160 135 73;  --jw-800:126 107 62;  --jw-900:94 80 49;
+    /* sand */
+    --sd-50:250 248 243;  --sd-100:243 238 224; --sd-200:230 218 191; --sd-300:214 193 151; --sd-400:198 165 113;
+    --sd-500:187 144 89;  --sd-600:174 125 77;  --sd-700:144 100 65;  --sd-800:118 81 58;   --sd-900:98 68 49;
+    /* neutral (Tailwind default) */
+    --nt-50:250 250 250;  --nt-100:245 245 245; --nt-200:229 229 229; --nt-300:212 212 212; --nt-400:163 163 163;
+    --nt-500:115 115 115; --nt-600:82 82 82;    --nt-700:64 64 64;    --nt-800:38 38 38;    --nt-900:23 23 23;  --nt-950:10 10 10;
+    /* rose (Tailwind default) */
+    --rs-50:255 241 242;  --rs-100:255 228 230; --rs-200:254 205 211; --rs-300:253 164 175; --rs-400:251 113 133;
+    --rs-500:244 63 94;   --rs-600:225 29 72;   --rs-700:190 18 60;   --rs-800:159 18 57;   --rs-900:136 19 55; --rs-950:76 5 25;
+    /* emerald */
+    --em-50:236 253 245; --em-100:209 250 229; --em-200:167 243 208; --em-300:110 231 183; --em-400:52 211 153;
+    --em-500:16 185 129; --em-600:5 150 105; --em-700:4 120 87; --em-800:6 95 70; --em-900:6 78 59; --em-950:2 44 34;
+    /* amber */
+    --am-50:255 251 235; --am-100:254 243 199; --am-200:253 230 138; --am-300:252 211 77; --am-400:251 191 36;
+    --am-500:245 158 11; --am-600:217 119 6; --am-700:180 83 9; --am-800:146 64 14; --am-900:120 53 15; --am-950:69 26 3;
+    /* sky */
+    --sk-50:240 249 255; --sk-100:224 242 254; --sk-200:186 230 253; --sk-300:125 211 252; --sk-400:56 189 248;
+    --sk-500:14 165 233; --sk-600:2 132 199; --sk-700:3 105 161; --sk-800:7 89 133; --sk-900:12 74 110; --sk-950:8 47 73;
+    /* violet */
+    --vi-50:245 243 255; --vi-100:237 233 254; --vi-200:221 214 254; --vi-300:196 181 253; --vi-400:167 139 250;
+    --vi-500:139 92 246; --vi-600:124 58 237; --vi-700:109 40 217; --vi-800:91 33 182; --vi-900:76 29 149; --vi-950:46 16 101;
+    /* teal */
+    --tl-50:240 253 250; --tl-100:204 251 241; --tl-200:153 246 228; --tl-300:94 234 212; --tl-400:45 212 191;
+    --tl-500:20 184 166; --tl-600:13 148 136; --tl-700:15 118 110; --tl-800:17 94 89; --tl-900:19 78 74; --tl-950:4 47 46;
+    /* pink */
+    --pk-50:253 242 248; --pk-100:252 231 243; --pk-200:251 207 232; --pk-300:249 168 212; --pk-400:244 114 182;
+    --pk-500:236 72 153; --pk-600:219 39 119; --pk-700:190 24 93; --pk-800:157 23 77; --pk-900:131 24 67; --pk-950:80 7 36;
+    /* orange (Tailwind default) */
+    --or-50:255 247 237; --or-100:255 237 213; --or-200:254 215 170; --or-300:253 186 116; --or-400:251 146 60;
+    --or-500:249 115 22; --or-600:234 88 12; --or-700:194 65 12; --or-800:154 52 18; --or-900:124 45 18; --or-950:67 20 7;
+    /* white surface */
+    --wt:255 255 255;
+  }
+
+  /* ━━━ Dashboard warm monochrome palette ━━━
+     #FFFDF1 cream · #FFCE99 peach · #FF9644 orange · #562F00 brown.
+     Accents (yellow/red/green) → orange · ink/neutral → brown · cream/sand →
+     cream · rose (delete) → orange. Status green/red intentionally collapse
+     into the warm palette (full monochrome). */
+  .dashboard-theme {
+    /* STRICT 4-COLOR — every shade resolves to exactly one of:
+       CREAM 255 253 241 · PEACH 255 206 153 · ORANGE 255 150 68 · BROWN 86 47 0 */
+
+    /* Accents + status families (yellow/red/green/rose/emerald/amber/sky/violet/
+       teal/pink/orange): 50 cream · 100-300 peach · 400-600 orange · 700+ brown */
+    --jy-50:255 253 241; --jy-100:255 206 153; --jy-200:255 206 153; --jy-300:255 206 153; --jy-400:255 150 68; --jy-500:255 150 68; --jy-600:255 150 68; --jy-700:86 47 0; --jy-800:86 47 0; --jy-900:86 47 0; --jy-950:86 47 0;
+    --jr-50:255 253 241; --jr-100:255 206 153; --jr-200:255 206 153; --jr-300:255 206 153; --jr-400:255 150 68; --jr-500:255 150 68; --jr-600:255 150 68; --jr-700:86 47 0; --jr-800:86 47 0; --jr-900:86 47 0; --jr-950:86 47 0;
+    --jg-50:255 253 241; --jg-100:255 206 153; --jg-200:255 206 153; --jg-300:255 206 153; --jg-400:255 150 68; --jg-500:255 150 68; --jg-600:255 150 68; --jg-700:86 47 0; --jg-800:86 47 0; --jg-900:86 47 0; --jg-950:86 47 0;
+    --rs-50:255 253 241; --rs-100:255 206 153; --rs-200:255 206 153; --rs-300:255 206 153; --rs-400:255 150 68; --rs-500:255 150 68; --rs-600:255 150 68; --rs-700:86 47 0; --rs-800:86 47 0; --rs-900:86 47 0; --rs-950:86 47 0;
+    --em-50:255 253 241; --em-100:255 206 153; --em-200:255 206 153; --em-300:255 206 153; --em-400:255 150 68; --em-500:255 150 68; --em-600:255 150 68; --em-700:86 47 0; --em-800:86 47 0; --em-900:86 47 0; --em-950:86 47 0;
+    --am-50:255 253 241; --am-100:255 206 153; --am-200:255 206 153; --am-300:255 206 153; --am-400:255 150 68; --am-500:255 150 68; --am-600:255 150 68; --am-700:86 47 0; --am-800:86 47 0; --am-900:86 47 0; --am-950:86 47 0;
+    --sk-50:255 253 241; --sk-100:255 206 153; --sk-200:255 206 153; --sk-300:255 206 153; --sk-400:255 150 68; --sk-500:255 150 68; --sk-600:255 150 68; --sk-700:86 47 0; --sk-800:86 47 0; --sk-900:86 47 0; --sk-950:86 47 0;
+    --vi-50:255 253 241; --vi-100:255 206 153; --vi-200:255 206 153; --vi-300:255 206 153; --vi-400:255 150 68; --vi-500:255 150 68; --vi-600:255 150 68; --vi-700:86 47 0; --vi-800:86 47 0; --vi-900:86 47 0; --vi-950:86 47 0;
+    --tl-50:255 253 241; --tl-100:255 206 153; --tl-200:255 206 153; --tl-300:255 206 153; --tl-400:255 150 68; --tl-500:255 150 68; --tl-600:255 150 68; --tl-700:86 47 0; --tl-800:86 47 0; --tl-900:86 47 0; --tl-950:86 47 0;
+    --pk-50:255 253 241; --pk-100:255 206 153; --pk-200:255 206 153; --pk-300:255 206 153; --pk-400:255 150 68; --pk-500:255 150 68; --pk-600:255 150 68; --pk-700:86 47 0; --pk-800:86 47 0; --pk-900:86 47 0; --pk-950:86 47 0;
+    --or-50:255 253 241; --or-100:255 206 153; --or-200:255 206 153; --or-300:255 206 153; --or-400:255 150 68; --or-500:255 150 68; --or-600:255 150 68; --or-700:86 47 0; --or-800:86 47 0; --or-900:86 47 0; --or-950:86 47 0;
+
+    /* Ink / body text (black, neutral): 50-100 cream · 200-300 peach · 400 orange · 500+ brown */
+    --jk-50:255 253 241; --jk-100:255 253 241; --jk-200:255 206 153; --jk-300:255 206 153; --jk-400:255 150 68; --jk-500:86 47 0; --jk-600:86 47 0; --jk-700:86 47 0; --jk-800:86 47 0; --jk-900:86 47 0; --jk-950:86 47 0;
+    --nt-50:255 253 241; --nt-100:255 253 241; --nt-200:255 206 153; --nt-300:255 206 153; --nt-400:255 150 68; --nt-500:86 47 0; --nt-600:86 47 0; --nt-700:86 47 0; --nt-800:86 47 0; --nt-900:86 47 0; --nt-950:86 47 0;
+
+    /* Surfaces / borders (jain-white, sand): 50-100 cream · 200-400 peach · 500-600 orange · 700+ brown */
+    --jw-50:255 253 241; --jw-100:255 253 241; --jw-200:255 206 153; --jw-300:255 206 153; --jw-400:255 206 153; --jw-500:255 150 68; --jw-600:255 150 68; --jw-700:86 47 0; --jw-800:86 47 0; --jw-900:86 47 0;
+    --sd-50:255 253 241; --sd-100:255 253 241; --sd-200:255 206 153; --sd-300:255 206 153; --sd-400:255 206 153; --sd-500:255 150 68; --sd-600:255 150 68; --sd-700:86 47 0; --sd-800:86 47 0; --sd-900:86 47 0;
+
+    /* White surface → cream */
+    --wt:255 253 241;
+  }
+
+  /* ━━━ Dashboard DARK mode ━━━
+     In dark mode the ink/surface families are used as BACKGROUNDS, so their
+     dark shades (600-950) become near-black instead of brown. Light shades
+     (text + accents) keep their warm values from `.dashboard-theme` above, so
+     text stays cream/peach and buttons stay orange on the black surfaces. */
+  .dark .dashboard-theme {
+    --jk-600:58 58 58; --jk-700:42 42 42; --jk-800:30 30 30; --jk-900:22 22 22; --jk-950:12 12 12;
+    --nt-600:58 58 58; --nt-700:42 42 42; --nt-800:30 30 30; --nt-900:22 22 22; --nt-950:12 12 12;
+    --jw-600:58 58 58; --jw-700:42 42 42; --jw-800:30 30 30; --jw-900:22 22 22;
+    --sd-600:58 58 58; --sd-700:42 42 42; --sd-800:30 30 30; --sd-900:22 22 22;
+    /* NOTE: `--wt` (white) is left as cream so `text-white` on the orange
+       banner/buttons stays light in dark mode; dark surfaces use neutral/jain-black. */
+  }
+
   html { @apply scroll-smooth antialiased; }
 
   body {
@@ -306,4 +409,48 @@ body { top: 0 !important; position: static !important; }
   .shadow-section-bottom {
     box-shadow: inset 0 -1px 0 rgba(255, 192, 30, 0.4);
   }
+}
+
+/* ━━━ Dashboard warm-palette overrides for the flat-gradient enforcement ━━━
+   The enforcement layer above forces Jain red/yellow/green on every gradient
+   utility. Inside `.dashboard-theme` we re-force those to warm orange so flat
+   "gradient" fills (progress bars, brand chips, active markers) stay on-palette.
+   Same layer + higher specificity → these win. */
+@layer utilities {
+  .dashboard-theme [class*="bg-gradient-"][class*="maroon"],
+  .dashboard-theme [class*="bg-gradient-"][class*="terracotta"],
+  .dashboard-theme [class*="bg-gradient-"][class*="jain-red"],
+  .dashboard-theme [class*="bg-gradient-"][class*="rose-"],
+  .dashboard-theme [class*="bg-gradient-"][class*="forest"],
+  .dashboard-theme [class*="bg-gradient-"][class*="jain-green"],
+  .dashboard-theme [class*="bg-gradient-"][class*="emerald-"],
+  .dashboard-theme [class*="bg-gradient-"][class*="violet-"],
+  .dashboard-theme [class*="bg-gradient-"][class*="pink-"],
+  .dashboard-theme [class*="bg-gradient-"][class*="fuchsia-"],
+  .dashboard-theme [class*="bg-gradient-"][class*="slate-"],
+  .dashboard-theme [class*="bg-gradient-"][class*="amber-"],
+  .dashboard-theme [class*="bg-gradient-"][class*="sky-"],
+  .dashboard-theme [class*="bg-gradient-"][class*="saffron"],
+  .dashboard-theme [class*="bg-gradient-"][class*="from-gold"],
+  .dashboard-theme [class*="bg-gradient-"][class*="jain-yellow"] {
+    background-color: #ff9644 !important; /* orange */
+  }
+}
+
+@layer components {
+  /* gradient-text is forced to Jain red globally — warm it to brown in the dashboard */
+  .dashboard-theme .gradient-text,
+  .dashboard-theme .gradient-text-gold {
+    -webkit-text-fill-color: #562f00 !important;
+            color: #562f00 !important;
+  }
+}
+
+/* ━━━ Dashboard cosmetic chrome → 4-color palette ━━━ */
+.dashboard-theme ::-webkit-scrollbar-thumb { background: #ffce99 !important; }
+.dashboard-theme ::-webkit-scrollbar-thumb:hover { background: #ff9644 !important; }
+.dashboard-theme ::selection { background-color: rgba(255, 150, 68, 0.35) !important; color: #562f00 !important; }
+/* <select> chevron drawn in brown instead of slate gray */
+.dashboard-theme select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' viewBox='0 0 24 24' stroke='%23562F00' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") !important;
 }

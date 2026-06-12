@@ -115,8 +115,8 @@ export default function Receipt() {
 
       {/* ───── Pavti sheet (this is what prints / exports) ───── */}
       <div className="print-area max-w-2xl mx-auto">
-        <div ref={sheetRef} className="bg-white" style={{ padding: 10, background: 'linear-gradient(#c8102e,#c8102e)' }}>
-          <div style={{ border: '2px solid #c8102e', background: '#fffaf0' }} className="p-4">
+        <div ref={sheetRef} className="bg-white" style={{ padding: 10, background: 'linear-gradient(#562F00,#562F00)' }}>
+          <div style={{ border: '2px solid #562F00', background: '#FFFDF1' }} className="p-4">
 
             {/* Header */}
             <div className="flex items-center gap-3 justify-center text-center">

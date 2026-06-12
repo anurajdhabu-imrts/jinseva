@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Calendar, Clock, MapPin, Users, ArrowLeft, Edit, Share2, IndianRupee, Receipt,
@@ -15,8 +15,7 @@ import EmptyState from '@components/EmptyState';
 import Input, { Select, Textarea, Checkbox } from '@components/Input';
 import { useToast } from '@context/ToastContext';
 import { useAuth } from '@context/AuthContext';
-import { eventsApi, resolveMedia, apiError } from '@services/rbacService';
-import { galleryImages } from '@data/mockData';
+import { eventsApi, mediaApi, resolveMedia, apiError } from '@services/rbacService';
 import {
   formatCurrency, formatDate, STATUS_COLORS, PAYMENT_METHODS, EXPENSE_CATEGORIES, onImgError,
 } from '@utils/constants';
@@ -224,6 +223,58 @@ function ExpensesTab({ expenses, canManage, onAdd, onDelete }) {
   );
 }
 
+// ── Gallery tab ────────────────────────────────────────────────
+function GalleryTab({ images, canManage, onAdd, onDelete }) {
+  const fileRef = useRef(null);
+  const openPicker = () => fileRef.current?.click();
+  const pick = (e) => {
+    const files = Array.from(e.target.files || []).filter((f) => f.type.startsWith('image/'));
+    if (files.length) onAdd(files);
+    e.target.value = ''; // allow re-selecting the same file
+  };
+
+  return (
+    <Card>
+      <CardHeader
+        title="Event Gallery"
+        subtitle={images.length ? `${images.length} photo${images.length > 1 ? 's' : ''}` : 'Photos from this event'}
+        action={canManage ? <Button size="sm" icon={Plus} onClick={openPicker}>Add Photos</Button> : null}
+      />
+      <CardBody>
+        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={pick} />
+        {images.length === 0 ? (
+          <EmptyState
+            icon={Image}
+            title="No photos yet"
+            description="Add photos to build this event's gallery."
+            action={canManage ? <Button icon={Plus} onClick={openPicker}>Add Photos</Button> : null}
+          />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {images.map((img) => (
+              <div key={img.id} className="aspect-square rounded-xl overflow-hidden group relative">
+                <img src={resolveMedia(img.src)} onError={onImgError} alt={img.caption} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                {canManage && (
+                  <button
+                    onClick={() => onDelete(img)}
+                    aria-label={`Delete ${img.caption}`}
+                    className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-black/55 text-white opacity-0 group-hover:opacity-100 hover:bg-jain-red-600 transition"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3 pointer-events-none">
+                  <p className="text-white text-xs font-medium">{img.caption}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
+
 export default function EventDetails() {
   const { id } = useParams();
   const nav = useNavigate();
@@ -233,6 +284,7 @@ export default function EventDetails() {
   const [event, setEvent] = useState(null);
   const [donations, setDonations] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [gallery, setGallery] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Modals
@@ -254,14 +306,18 @@ export default function EventDetails() {
     }
     setEvent(ev);
 
-    // Donations + expenses are best-effort: a failure here (e.g. an older
-    // backend without the expenses route) must NOT kick the user off the page.
-    const [dn, ex] = await Promise.allSettled([
+    // Donations + expenses + gallery are best-effort: a failure here (e.g. an
+    // older backend without a route) must NOT kick the user off the page.
+    // Gallery photos are stored as media records categorised by the event's
+    // title, so they also appear in the Media gallery.
+    const [dn, ex, ph] = await Promise.allSettled([
       eventsApi.donations(id),
       eventsApi.expenses(id),
+      mediaApi.list({ type: 'photo', category: ev.title }),
     ]);
     setDonations(dn.status === 'fulfilled' ? dn.value.data || [] : []);
     setExpenses(ex.status === 'fulfilled' ? ex.value.data || [] : []);
+    setGallery(ph.status === 'fulfilled' ? ph.value || [] : []);
     if (ex.status === 'rejected') {
       toast.error('Expenses unavailable — restart the backend to enable event expenses.');
     }
@@ -348,6 +404,30 @@ export default function EventDetails() {
     }
   };
 
+  // ── Gallery handlers ──
+  // Photos are uploaded as media records categorised by the event title, so
+  // they show up here AND in the Media gallery (filterable by event name).
+  const addPhotos = async (files) => {
+    try {
+      const res = await mediaApi.upload(files, event.title);
+      setGallery((prev) => [...(res.data || []), ...prev]);
+      toast.success(`${res.count} photo${res.count > 1 ? 's' : ''} added — also visible in Media.`);
+    } catch (err) {
+      toast.error(apiError(err));
+    }
+  };
+
+  const deletePhoto = async (img) => {
+    if (!window.confirm(`Delete "${img.caption}" from the gallery and Media?`)) return;
+    try {
+      await mediaApi.remove(img.id);
+      setGallery((prev) => prev.filter((g) => g.id !== img.id));
+      toast.success('Photo deleted.');
+    } catch (err) {
+      toast.error(apiError(err));
+    }
+  };
+
   if (loading) return <p className="py-12 text-center text-sm text-neutral-500">Loading event…</p>;
   if (!event) return null;
 
@@ -418,16 +498,8 @@ export default function EventDetails() {
       key: 'gallery',
       label: 'Gallery',
       icon: Image,
-      content: (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {galleryImages.slice(0, 8).map((img) => (
-            <div key={img.id} className="aspect-square rounded-xl overflow-hidden group cursor-pointer relative">
-              <img src={img.src} alt={img.caption} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3"><p className="text-white text-xs font-medium">{img.caption}</p></div>
-            </div>
-          ))}
-        </div>
-      ),
+      count: gallery.length,
+      content: <GalleryTab images={gallery} canManage={canManage} onAdd={addPhotos} onDelete={deletePhoto} />,
     },
     {
       key: 'bookings',

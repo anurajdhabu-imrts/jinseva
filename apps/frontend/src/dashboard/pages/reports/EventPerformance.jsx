@@ -60,12 +60,12 @@ export default function EventPerformance() {
               <ResponsiveContainer>
                 <BarChart data={d.byEvent} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" vertical={false} />
-                  <XAxis dataKey="event" stroke="#94a3b8" />
-                  <YAxis yAxisId="left" stroke="#94a3b8" tickFormatter={(v) => `${v/1000}k`} />
-                  <YAxis yAxisId="right" orientation="right" stroke="#94a3b8" />
+                  <XAxis dataKey="event" stroke="#562F00" />
+                  <YAxis yAxisId="left" stroke="#562F00" tickFormatter={(v) => `${v/1000}k`} />
+                  <YAxis yAxisId="right" orientation="right" stroke="#562F00" />
                   <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v, n) => n === 'revenue' ? formatCurrency(v) : v} />
-                  <Bar yAxisId="left" dataKey="revenue" name="Revenue" fill="#ffc01e" radius={[8, 8, 0, 0]} maxBarSize={32} />
-                  <Bar yAxisId="right" dataKey="attendees" name="Attendees" fill="#00843d" radius={[8, 8, 0, 0]} maxBarSize={32} />
+                  <Bar yAxisId="left" dataKey="revenue" name="Revenue" fill="#FF9644" radius={[8, 8, 0, 0]} maxBarSize={32} />
+                  <Bar yAxisId="right" dataKey="attendees" name="Attendees" fill="#FFCE99" radius={[8, 8, 0, 0]} maxBarSize={32} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -79,9 +79,9 @@ export default function EventPerformance() {
               <ResponsiveContainer>
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="rgba(120,120,120,0.2)" />
-                  <PolarAngleAxis dataKey="metric" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                  <PolarRadiusAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                  <Radar name="Score" dataKey="value" stroke="#ffc01e" fill="#ffc01e" fillOpacity={0.4} strokeWidth={2} />
+                  <PolarAngleAxis dataKey="metric" tick={{ fill: '#562F00', fontSize: 11 }} />
+                  <PolarRadiusAxis tick={{ fill: '#562F00', fontSize: 10 }} />
+                  <Radar name="Score" dataKey="value" stroke="#FF9644" fill="#FF9644" fillOpacity={0.4} strokeWidth={2} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>

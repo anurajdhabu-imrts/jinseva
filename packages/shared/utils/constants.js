@@ -15,8 +15,10 @@ export const formatTime = (d) =>
   new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
 // Inline SVG placeholder shown when an image fails to load (e.g. a dead URL).
+// Uses the standard `data:image/svg+xml,` form (the non-standard `;utf8,`
+// variant fails to render in some browsers, leaving a broken-image glyph).
 export const IMG_FALLBACK =
-  'data:image/svg+xml;utf8,' +
+  'data:image/svg+xml,' +
   encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300">' +
       '<rect width="100%" height="100%" fill="#f3ede2"/>' +
@@ -106,6 +108,10 @@ export const PAYMENT_METHODS = ['UPI', 'Card', 'Cash', 'Bank Transfer', 'Cheque'
 export const PROPERTY_CATEGORIES = ['Jain Mandir', 'Gunfa', 'Hall', 'Commercial Properties'];
 // Legacy alias (the events module shipped with this name first).
 export const EVENT_CATEGORIES = PROPERTY_CATEGORIES;
+
+// Default Event Type options (admin-managed via Settings → Dropdown Options;
+// these are the fallback used before the dynamic list loads).
+export const EVENT_TYPES = ['Festival', 'Pooja', 'Discourse', 'Seva', 'Wedding', 'Community'];
 
 export const TIRTHANKARS = [
   'Shree Adinath (Rishabhdev)',

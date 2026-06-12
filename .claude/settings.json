@@ -26,7 +26,22 @@
       "Bash(grep -rln -iE \"notification\" apps/frontend/src packages/shared)",
       "Bash(grep -rln -iE \"notification\" apps/backend/app apps/backend/seed.py)",
       "Bash(ls apps/frontend/src/dashboard/pages/communication/)",
-      "Bash(grep -rln \"Announcement\\\\|communicationApi\\\\|MessageTemplate\" apps/frontend/src/dashboard/pages/communication/)"
+      "Bash(grep -rln \"Announcement\\\\|communicationApi\\\\|MessageTemplate\" apps/frontend/src/dashboard/pages/communication/)",
+      "Bash(npx eslint *)",
+      "Bash(grep -rhoE \"\\(bg|text|border|ring|from|to|via|fill|stroke|divide\\)-\\(rose|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|slate|gray|zinc|stone\\)-[0-9]{2,3}\" apps/frontend/src/dashboard packages/shared/components packages/shared/utils)",
+      "Bash(grep -rhoE \"\\(bg|text|border|ring|from|to|fill|stroke\\)-\\(emerald|amber|sky|violet|teal|pink|orange|rose|green|blue|red|purple\\)-[0-9]{2,3}\" .)",
+      "Bash(npm run *)",
+      "Bash(sed -n '60,66p' app/api/routes/expenses.py)",
+      "Bash(sed -n '78,84p' app/api/routes/roles.py)",
+      "Bash(sed -n '13,17p' app/models/expense.py)",
+      "Bash(sed -n '17,21p' app/models/role.py)",
+      "Bash(cd \"d:/Projects/TempleManagement/apps/frontend/src\" && echo \"=== SearchBar component ===\" && cat ../../../packages/shared/components/SearchBar.jsx 2>/dev/null || cat packages/shared/components/SearchBar.jsx; echo \"=== green/emerald/gold tones in Donation/Income list ===\" && grep -rnE \"tone=|StatsCard|emerald|green|#00843d|#054624|jain-green|from-emerald\" dashboard/pages/donations/DonationList.jsx dashboard/pages/income/IncomeList.jsx | head -30)",
+      "Read(//d/packages/shared/components/**)",
+      "Bash(rm -rf apps/frontend/node_modules/.vite node_modules/.vite)",
+      "Bash(netstat -ano)",
+      "Bash(cd \"d:/Projects/TempleManagement/apps/backend\" && echo \"=== income categories endpoint ===\" && grep -n \"categor\\\\|@router\" app/api/routes/income.py; echo \"=== incomeApi in service ===\" && grep -n \"income\" ../../packages/shared/services/rbacService.js | head)",
+      "Read(//d/packages/shared/services/**)",
+      "Bash(python -c ' *)"
     ]
   },
   "indexing": {

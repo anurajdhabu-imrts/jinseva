@@ -29,7 +29,7 @@ export default function PropertyReport() {
   }, [toast]);
 
   const rowFor = (name) => data.rows.find((r) => r.property === name)
-    || { property: name, donations: 0, income: 0, revenue: 0, expenses: 0, net: 0, color: '#94a3b8' };
+    || { property: name, donations: 0, income: 0, revenue: 0, expenses: 0, net: 0, color: '#562F00' };
 
   // Cards for the 4 canonical properties (always shown, even at zero).
   const cards = useMemo(() => PROPERTY_CATEGORIES.map(rowFor), [data]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -88,12 +88,12 @@ export default function PropertyReport() {
               <ResponsiveContainer>
                 <ComposedChart data={chartRows}>
                   <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" vertical={false} />
-                  <XAxis dataKey="property" stroke="#94a3b8" tick={{ fontSize: 12 }} />
-                  <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v / 1000}k`} />
+                  <XAxis dataKey="property" stroke="#562F00" tick={{ fontSize: 12 }} />
+                  <YAxis stroke="#562F00" tickFormatter={(v) => `${v / 1000}k`} />
                   <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v) => formatCurrency(v)} />
                   <Legend />
-                  <Bar dataKey="revenue" name="Revenue" fill="#ffc01e" radius={[8, 8, 0, 0]} maxBarSize={48} />
-                  <Bar dataKey="expenses" name="Expenses" fill="#c8102e" radius={[8, 8, 0, 0]} maxBarSize={48} />
+                  <Bar dataKey="revenue" name="Revenue" fill="#FF9644" radius={[8, 8, 0, 0]} maxBarSize={48} />
+                  <Bar dataKey="expenses" name="Expenses" fill="#562F00" radius={[8, 8, 0, 0]} maxBarSize={48} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>

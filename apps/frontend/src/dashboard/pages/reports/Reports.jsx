@@ -80,13 +80,13 @@ export default function Reports() {
             <ResponsiveContainer>
               <ComposedChart data={data.monthly}>
                 <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" />
-                <XAxis dataKey="month" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v/1000}k`} />
+                <XAxis dataKey="month" stroke="#562F00" />
+                <YAxis stroke="#562F00" tickFormatter={(v) => `${v/1000}k`} />
                 <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v) => formatCurrency(v)} />
                 <Legend />
-                <Bar dataKey="income" name="Income" fill="#ffc01e" radius={[8, 8, 0, 0]} maxBarSize={28} />
-                <Bar dataKey="expense" name="Expense" fill="#c8102e" radius={[8, 8, 0, 0]} maxBarSize={28} />
-                <Line type="monotone" dataKey="income" stroke="#00843d" strokeWidth={3} dot={{ r: 4 }} />
+                <Bar dataKey="income" name="Income" fill="#FF9644" radius={[8, 8, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="expense" name="Expense" fill="#562F00" radius={[8, 8, 0, 0]} maxBarSize={28} />
+                <Line type="monotone" dataKey="income" stroke="#FFCE99" strokeWidth={3} dot={{ r: 4 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -101,12 +101,12 @@ export default function Reports() {
             <ResponsiveContainer>
               <ComposedChart data={propRows}>
                 <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" vertical={false} />
-                <XAxis dataKey="property" stroke="#94a3b8" tick={{ fontSize: 12 }} />
-                <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v / 1000}k`} />
+                <XAxis dataKey="property" stroke="#562F00" tick={{ fontSize: 12 }} />
+                <YAxis stroke="#562F00" tickFormatter={(v) => `${v / 1000}k`} />
                 <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v) => formatCurrency(v)} />
                 <Legend />
-                <Bar dataKey="revenue" name="Revenue" fill="#ffc01e" radius={[8, 8, 0, 0]} maxBarSize={40} />
-                <Bar dataKey="expenses" name="Expenses" fill="#c8102e" radius={[8, 8, 0, 0]} maxBarSize={40} />
+                <Bar dataKey="revenue" name="Revenue" fill="#FF9644" radius={[8, 8, 0, 0]} maxBarSize={40} />
+                <Bar dataKey="expenses" name="Expenses" fill="#562F00" radius={[8, 8, 0, 0]} maxBarSize={40} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>

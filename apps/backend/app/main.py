@@ -15,6 +15,7 @@ from app.api.routes import (
     expenses,
     income,
     inventory,
+    lookups,
     me,
     media,
     public,
@@ -38,6 +39,7 @@ from app.models import (  # noqa: F401 — register mappers for create_all
     ExpenseCategory,
     Income,
     InventoryItem,
+    Lookup,
     Media,
     MessageTemplate,
     Role,
@@ -65,6 +67,15 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 def on_startup() -> None:
     # Dev convenience: ensure tables exist. For production use Alembic migrations.
     Base.metadata.create_all(bind=engine)
+    # Seed default dropdown options the first time the table is empty.
+    from app.api.routes.lookups import seed_lookups
+    from app.core.database import SessionLocal
+
+    db = SessionLocal()
+    try:
+        seed_lookups(db)
+    finally:
+        db.close()
 
 
 # ── Error handlers — shape bodies as { success, message } so the dashboard's
@@ -103,6 +114,7 @@ app.include_router(income.router, prefix="/api")
 app.include_router(expenses.router, prefix="/api")
 app.include_router(bookings.router, prefix="/api")
 app.include_router(inventory.router, prefix="/api")
+app.include_router(lookups.router, prefix="/api")
 app.include_router(staff.router, prefix="/api")
 app.include_router(communication.router, prefix="/api")
 app.include_router(me.router, prefix="/api")

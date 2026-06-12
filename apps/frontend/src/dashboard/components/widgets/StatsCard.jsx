@@ -2,13 +2,17 @@ import { TrendingDown, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@utils/cn';
 
+// Every tone uses ONLY palette tokens (saffron→orange, jain-black→brown), so a
+// stat card can never render green/violet/yellow regardless of the data's
+// intended "tone". Blob/box stay warm orange; glyph varies orange vs brown.
+const BLOB = 'from-saffron-500/15 to-saffron-500/5 border-saffron-500/25';
 const tones = {
-  primary: 'from-saffron-500/15 to-saffron-500/5 text-saffron-700 dark:text-saffron-400 border-saffron-500/20',
-  gold:    'from-gold-400/15 to-gold-400/5 text-gold-700 dark:text-gold-400 border-gold-500/20',
-  rose:    'from-rose-500/15 to-rose-500/5 text-rose-700 dark:text-rose-400 border-rose-500/20',
-  emerald: 'from-emerald-500/15 to-emerald-500/5 text-emerald-700 dark:text-emerald-400 border-emerald-500/20',
-  violet:  'from-violet-500/15 to-violet-500/5 text-violet-700 dark:text-violet-400 border-violet-500/20',
-  sky:     'from-sky-500/15 to-sky-500/5 text-sky-700 dark:text-sky-400 border-sky-500/20',
+  primary: `${BLOB} text-saffron-600 dark:text-saffron-300`,
+  gold:    `${BLOB} text-saffron-600 dark:text-saffron-300`,
+  rose:    `${BLOB} text-jain-black-700 dark:text-jain-white-300`,
+  emerald: `${BLOB} text-jain-black-700 dark:text-jain-white-300`,
+  violet:  `${BLOB} text-saffron-700 dark:text-saffron-300`,
+  sky:     `${BLOB} text-saffron-600 dark:text-saffron-300`,
 };
 
 export default function StatsCard({ icon: Icon, label, value, growth, tone = 'primary', subtitle, delay = 0 }) {
@@ -29,8 +33,8 @@ export default function StatsCard({ icon: Icon, label, value, growth, tone = 'pr
           {growth !== undefined && (
             <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium">
               <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full',
-                positive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400'
-                         : 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400')}>
+                positive ? 'bg-saffron-100 text-saffron-700 dark:bg-saffron-500/15 dark:text-saffron-300'
+                         : 'bg-sand-200 text-jain-black-700 dark:bg-neutral-800 dark:text-jain-white-300')}>
                 {positive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                 {positive ? '+' : ''}{growth}%
               </span>

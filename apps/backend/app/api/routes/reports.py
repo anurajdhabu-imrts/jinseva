@@ -15,7 +15,7 @@ router = APIRouter(prefix="/reports", tags=["reports"])
 can_view = require_permissions("reports.view")
 
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-PALETTE = ["#ffc01e", "#c8102e", "#00843d", "#1a1b22", "#d68500", "#054624", "#761120"]
+PALETTE = ["#FF9644", "#562F00", "#FFCE99"]
 # Canonical temple properties (kept in this order even when they have no data yet).
 PROPERTIES = ["Jain Mandir", "Gunfa", "Hall", "Commercial Properties"]
 

@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom';
-import { Save, Building2, MapPin, Phone, Mail, Globe, Flame, Camera, Settings as SettingsIcon, UserCog, Users as UsersIcon } from 'lucide-react';
+import { Save, Building2, MapPin, Phone, Mail, Globe, Flame, Camera, Settings as SettingsIcon, UserCog, Users as UsersIcon, ListChecks } from 'lucide-react';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Input, { Select, Textarea } from '@components/Input';
 import Button from '@components/Button';
 
 const settingsNav = [
-  { to: '/settings',       label: 'Temple Info',         icon: SettingsIcon },
-  { to: '/settings/users', label: 'Users',                icon: UsersIcon },
-  { to: '/settings/roles', label: 'Roles & Permissions', icon: UserCog },
+  { to: '/settings',        label: 'Temple Info',         icon: SettingsIcon },
+  { to: '/settings/options', label: 'Dropdown Options',    icon: ListChecks },
+  { to: '/settings/users',  label: 'Users',                icon: UsersIcon },
+  { to: '/settings/roles',  label: 'Roles & Permissions', icon: UserCog },
 ];
 
 export default function TempleInfo() {

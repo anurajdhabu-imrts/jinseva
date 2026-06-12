@@ -1,26 +1,33 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, X, Calendar, Clock, MapPin, Users, Wallet } from 'lucide-react';
+import { Save, X, Calendar, MapPin, Users, Wallet } from 'lucide-react';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Input, { Select, Textarea, Checkbox } from '@components/Input';
+import ClockTimePicker from '@components/ClockTimePicker';
 import Button from '@components/Button';
 import ImageUpload from '@dashboard/components/widgets/ImageUpload';
 import { useToast } from '@context/ToastContext';
+import { useLookups } from '@context/LookupContext';
 import { eventsApi, apiError } from '@services/rbacService';
-import { EVENT_CATEGORIES } from '@utils/constants';
+import { EVENT_CATEGORIES, EVENT_TYPES } from '@utils/constants';
 
 export default function EventCreate() {
+  const eventTypes = useLookups('event_type', EVENT_TYPES);
+  const properties = useLookups('property', EVENT_CATEGORIES);
   const [form, setForm] = useState({
     title: '', type: 'Festival', category: '', date: '', time: '', endTime: '',
     location: '', organizer: '', expectedAttendees: '', budget: '',
     description: '', image: '', notifyDevotees: true, allowDonations: true,
   });
   const [saving, setSaving] = useState(false);
+  const [imgUploading, setImgUploading] = useState(false);
+  const imageRef = useRef('');
+  const pendingUploadRef = useRef(null);
   const { toast } = useToast();
   const nav = useNavigate();
 
-  const update = (k, v) => setForm({ ...form, [k]: v });
+  const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const submit = async (e) => {
     e.preventDefault();
@@ -30,6 +37,10 @@ export default function EventCreate() {
     }
     setSaving(true);
     try {
+      // If an image is still uploading, wait for it so we save the real URL.
+      if (pendingUploadRef.current) {
+        try { await pendingUploadRef.current; } catch { /* error already toasted */ }
+      }
       await eventsApi.create({
         title: form.title.trim(),
         type: form.type,
@@ -43,7 +54,7 @@ export default function EventCreate() {
         attendees: Number(form.expectedAttendees) || 0,
         budget: Number(form.budget) || 0,
         description: form.description,
-        image: form.image,
+        image: imageRef.current,
         allowDonations: form.allowDonations,
       });
       toast.success('Event created successfully!');
@@ -71,7 +82,7 @@ export default function EventCreate() {
             <CardBody className="space-y-4">
               <Input label="Event Title" placeholder="e.g., Maha Shivaratri Mahotsav" value={form.title} onChange={(e) => update('title', e.target.value)} required />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Select label="Event Type" value={form.type} onChange={(e) => update('type', e.target.value)} options={['Festival', 'Pooja', 'Discourse', 'Seva', 'Wedding', 'Community']} />
+                <Select label="Event Type" value={form.type} onChange={(e) => update('type', e.target.value)} options={eventTypes} />
                 <Input label="Organizer" placeholder="Festival committee" value={form.organizer} onChange={(e) => update('organizer', e.target.value)} />
               </div>
               <Textarea label="Description" rows={4} placeholder="Tell devotees about this event…" value={form.description} onChange={(e) => update('description', e.target.value)} />
@@ -83,8 +94,8 @@ export default function EventCreate() {
             <CardBody className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input label="Date" icon={Calendar} type="date" value={form.date} onChange={(e) => update('date', e.target.value)} required />
-                <Input label="Start time" icon={Clock} type="time" value={form.time} onChange={(e) => update('time', e.target.value)} />
-                <Input label="End time" icon={Clock} type="time" value={form.endTime} onChange={(e) => update('endTime', e.target.value)} />
+                <ClockTimePicker label="Start time" value={form.time} onChange={(v) => update('time', v)} />
+                <ClockTimePicker label="End time" value={form.endTime} onChange={(v) => update('endTime', v)} />
               </div>
               <Input label="Venue / Location" icon={MapPin} placeholder="Main temple complex" value={form.location} onChange={(e) => update('location', e.target.value)} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -97,7 +108,14 @@ export default function EventCreate() {
           <Card>
             <CardHeader title="Event Banner" subtitle="Upload an image to attract devotees" />
             <CardBody>
-              <ImageUpload value={form.image} onChange={(url) => update('image', url)} label="" hint="PNG, JPG, WebP up to 5 MB • Recommended 1920×1080" />
+              <ImageUpload
+                value={form.image}
+                onChange={(url) => { imageRef.current = url; update('image', url); }}
+                onUploadingChange={setImgUploading}
+                onPending={(p) => { pendingUploadRef.current = p; }}
+                label=""
+                hint="Any image format • Recommended 1920×1080"
+              />
             </CardBody>
           </Card>
         </div>
@@ -117,14 +135,16 @@ export default function EventCreate() {
           <Card>
             <CardHeader title="Categories & Tags" />
             <CardBody className="space-y-3">
-              <Select label="Property / Place" value={form.category} onChange={(e) => update('category', e.target.value)} options={[{ value: '', label: 'Select place…' }, ...EVENT_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
+              <Select label="Property / Place" value={form.category} onChange={(e) => update('category', e.target.value)} options={[{ value: '', label: 'Select place…' }, ...properties.map((c) => ({ value: c, label: c }))]} />
               <Input label="Tags (comma separated)" placeholder="diwali, lights, pooja" />
             </CardBody>
           </Card>
 
           <Card>
             <CardBody className="space-y-2">
-              <Button type="submit" fullWidth icon={Save} loading={saving}>Publish Event</Button>
+              <Button type="submit" fullWidth icon={Save} loading={saving} disabled={imgUploading}>
+                {imgUploading ? 'Uploading image…' : 'Publish Event'}
+              </Button>
               <Button type="button" variant="secondary" fullWidth>Save as Draft</Button>
               <Button type="button" variant="ghost" fullWidth icon={X} onClick={() => nav('/events')}>Cancel</Button>
             </CardBody>

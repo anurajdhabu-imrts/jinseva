@@ -15,13 +15,13 @@ export default function EventRevenueChart({ data = [] }) {
             <BarChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -10 }}>
               <defs>
                 <linearGradient id="barGold" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stopColor="#ffc01e" />
-                  <stop offset="100%" stopColor="#c8102e" />
+                  <stop offset="0%"  stopColor="#FF9644" />
+                  <stop offset="100%" stopColor="#562F00" />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" vertical={false} />
-              <XAxis dataKey="event" stroke="#94a3b8" fontSize={11} interval={0} angle={-12} textAnchor="end" height={50} />
-              <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `${v/1000}k`} />
+              <XAxis dataKey="event" stroke="#562F00" fontSize={11} interval={0} angle={-12} textAnchor="end" height={50} />
+              <YAxis stroke="#562F00" fontSize={12} tickFormatter={(v) => `${v/1000}k`} />
               <Tooltip
                 contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff', fontSize: 12 }}
                 formatter={(v, k) => k === 'revenue' ? formatCurrency(v) : v}

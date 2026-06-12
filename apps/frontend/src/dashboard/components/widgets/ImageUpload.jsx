@@ -1,32 +1,91 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { useToast } from '@context/ToastContext';
-import { mediaApi, resolveMedia, apiError } from '@services/rbacService';
+import { resolveMedia } from '@services/rbacService';
 import { onImgError } from '@utils/constants';
 
 /**
- * Image picker that uploads the selected file to the backend and returns its
- * stored URL via onChange. `value` is the current image URL (relative or absolute).
+ * Reads an image File entirely in the browser, downscales it to `maxDim` and
+ * returns a compressed JPEG data URL. No network, no temp file — so it always
+ * renders and can't be lost. Works for any input format the browser can decode
+ * (PNG/JPG/WebP/GIF/AVIF/HEIC where supported).
  */
-export default function ImageUpload({ value, onChange, label = 'Banner image', hint = 'PNG, JPG, WebP up to 5 MB' }) {
+function fileToDataUrl(file, maxDim = 1280, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const objUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(objUrl);
+      let { width, height } = img;
+      if (Math.max(width, height) > maxDim) {
+        const s = maxDim / Math.max(width, height);
+        width = Math.round(width * s);
+        height = Math.round(height * s);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff'; // flatten any transparency
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => { URL.revokeObjectURL(objUrl); reject(new Error('That file could not be read as an image.')); };
+    img.src = objUrl;
+  });
+}
+
+/**
+ * Image picker. Stores the chosen image inline as a compressed data URL via
+ * onChange — there is no separate upload step, so the image can never end up
+ * un-linked, missing on disk, or in an unrenderable format. `value` may be a
+ * data URL or a legacy "/uploads/.." URL; both display.
+ */
+export default function ImageUpload({ value, onChange, onUploadingChange, onPending, label = 'Banner image', hint = 'Any image format' }) {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [localPreview, setLocalPreview] = useState(null); // object URL of the just-picked file
+
+  // Revoke the object URL when it changes / on unmount.
+  useEffect(() => () => { if (localPreview) URL.revokeObjectURL(localPreview); }, [localPreview]);
+
+  const setBusy = (v) => { setUploading(v); onUploadingChange?.(v); };
 
   const upload = async (file) => {
     if (!file) return;
     if (!file.type.startsWith('image')) return toast.error('Please choose an image file.');
-    setUploading(true);
+    // Show the picked image instantly.
+    const preview = URL.createObjectURL(file);
+    setLocalPreview(preview);
+    setBusy(true);
+    // Expose the processing task so a parent's Save can await it (no race).
+    const task = (async () => {
+      const dataUrl = await fileToDataUrl(file);
+      onChange(dataUrl);
+      return dataUrl;
+    })();
+    onPending?.(task);
     try {
-      const url = await mediaApi.uploadFile(file);
-      onChange(url);
-      toast.success('Image uploaded.');
+      await task;
+      toast.success('Image added.');
     } catch (err) {
-      toast.error(apiError(err));
+      setLocalPreview(null);
+      toast.error(err.message || 'Could not read that image.');
     } finally {
-      setUploading(false);
+      setBusy(false);
+      onPending?.(null);
     }
   };
+
+  const clear = () => {
+    setLocalPreview(null);
+    onChange('');
+  };
+
+  const displaySrc = localPreview || resolveMedia(value);
+  const hasImage = !!(localPreview || value);
 
   return (
     <div>
@@ -34,12 +93,17 @@ export default function ImageUpload({ value, onChange, label = 'Banner image', h
         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">{label}</label>
       )}
 
-      {value ? (
+      {hasImage ? (
         <div className="relative rounded-2xl overflow-hidden border border-sand-200 dark:border-neutral-800 group">
-          <img src={resolveMedia(value)} onError={onImgError} alt="Selected" className="w-full h-48 object-cover" />
+          <img src={displaySrc} onError={onImgError} alt="Selected" className="w-full h-48 object-cover" />
+          {uploading && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <Loader2 className="w-7 h-7 text-white animate-spin" />
+            </div>
+          )}
           <button
             type="button"
-            onClick={() => onChange('')}
+            onClick={clear}
             className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/50 backdrop-blur text-white hover:bg-rose-500/80"
             title="Remove image"
           >

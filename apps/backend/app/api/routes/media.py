@@ -1,7 +1,9 @@
 import uuid
+from io import BytesIO
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from PIL import Image, UnidentifiedImageError
 from sqlalchemy import distinct, func, or_, select
 from sqlalchemy.orm import Session
 
@@ -16,6 +18,41 @@ router = APIRouter(prefix="/media", tags=["media"])
 # apps/backend/uploads (served as /uploads by the static mount in main.py)
 UPLOAD_DIR = Path(__file__).resolve().parents[3] / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _save_upload(raw: bytes, filename: str, content_type: str) -> tuple[str, str]:
+    """Persist an uploaded file and return (url, media_type).
+
+    Images are normalised to JPEG so they render in every browser — formats like
+    AVIF/HEIC don't display reliably everywhere. Videos and anything Pillow can't
+    decode are stored as-is.
+    """
+    ctype = (content_type or "").lower()
+    if ctype.startswith("video"):
+        ext = (Path(filename or "").suffix or ".mp4").lower()
+        fname = f"{uuid.uuid4().hex}{ext}"
+        (UPLOAD_DIR / fname).write_bytes(raw)
+        return f"/uploads/{fname}", "video"
+
+    try:
+        im = Image.open(BytesIO(raw))
+        im.load()
+        if im.mode in ("RGBA", "LA", "P"):
+            im = im.convert("RGBA")
+            bg = Image.new("RGB", im.size, (255, 255, 255))
+            bg.paste(im, mask=im.split()[-1])
+            im = bg
+        else:
+            im = im.convert("RGB")
+        fname = f"{uuid.uuid4().hex}.jpg"
+        im.save(UPLOAD_DIR / fname, "JPEG", quality=88, optimize=True)
+        return f"/uploads/{fname}", "photo"
+    except (UnidentifiedImageError, OSError, ValueError):
+        # Not a decodable image — keep the original bytes.
+        ext = (Path(filename or "").suffix or "").lower()
+        fname = f"{uuid.uuid4().hex}{ext}"
+        (UPLOAD_DIR / fname).write_bytes(raw)
+        return f"/uploads/{fname}", "photo"
 
 can_view = require_permissions("media.view")
 can_create = require_permissions("media.create")
@@ -80,19 +117,13 @@ async def upload_media(
 ):
     created = []
     for f in files:
-        ext = (Path(f.filename or "").suffix or "").lower()
-        fname = f"{uuid.uuid4().hex}{ext}"
-        dest = UPLOAD_DIR / fname
-        with open(dest, "wb") as out:
-            out.write(await f.read())
-        ctype = f.content_type or ""
-        media_type = "video" if ctype.startswith("video") else "photo"
+        url, media_type = _save_upload(await f.read(), f.filename, f.content_type)
         m = Media(
             code=generate_code(db, Media, Media.code, "MED-", pad=3, start=1),
             media_type=media_type,
-            title=Path(f.filename or fname).stem,
+            title=Path(f.filename or url).stem,
             category=category or "Uncategorized",
-            url=f"/uploads/{fname}",
+            url=url,
         )
         db.add(m)
         db.flush()
@@ -108,12 +139,8 @@ async def upload_media(
 async def upload_file(file: UploadFile = File(...)):
     """Save a single image and return its URL (no gallery record).
     Used for entity banners like event images."""
-    ext = (Path(file.filename or "").suffix or "").lower()
-    fname = f"{uuid.uuid4().hex}{ext}"
-    dest = UPLOAD_DIR / fname
-    with open(dest, "wb") as out:
-        out.write(await file.read())
-    return {"success": True, "url": f"/uploads/{fname}"}
+    url, _ = _save_upload(await file.read(), file.filename, file.content_type)
+    return {"success": True, "url": url}
 
 
 @router.delete("/{code}", dependencies=[Depends(can_delete)])

@@ -1,0 +1,2 @@
+- [Dashboard warm theme](dashboard-warm-theme.md) — dashboard uses a scoped warm monochrome palette via CSS variables; public site keeps Jain flag
+- [Dynamic dropdowns](dynamic-dropdowns.md) — Event Type/Property/Purpose/Payment Method are admin-managed lookups (Settings → Dropdown Options); how to add more

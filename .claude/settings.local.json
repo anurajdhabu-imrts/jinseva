@@ -18,7 +18,28 @@
       "PowerShell(Set-Location \"d:\\\\Projects\\\\TempleManagement\\\\apps\\\\backend\"; $env:JWT_SECRET=\"test-secret\"; $env:MONGO_URI=\"mongodb://localhost:27017/test\"; node --input-type=module -e \"import\\('./src/app.js'\\).then\\(\\(\\) => { console.log\\('APP IMPORT OK'\\); process.exit\\(0\\); }\\).catch\\(e => { console.error\\('IMPORT FAIL:', e\\); process.exit\\(1\\); }\\);\")",
       "Bash(xargs grep -l \"useAuth\\\\|login\")",
       "PowerShell($py = Get-Command python -ErrorAction SilentlyContinue; if \\($py\\) { \"python: $\\($py.Source\\)\"; python --version } else { \"python: NOT FOUND\" }; $pg = Get-Command psql -ErrorAction SilentlyContinue; if \\($pg\\) { \"psql: $\\($pg.Source\\)\" } else { \"psql: not on PATH\" }; try { $c = Test-NetConnection -ComputerName localhost -Port 5432 -WarningAction SilentlyContinue; \"port 5432 open: $\\($c.TcpTestSucceeded\\)\" } catch { \"port test failed\" })",
-      "PowerShell(\"removed apps/backend \\(Node\\)\")"
+      "PowerShell(\"removed apps/backend \\(Node\\)\")",
+      "Bash(cd \"d:/Projects/TempleManagement/apps/backend\")",
+      "Bash(ls -t uploads/*.avif)",
+      "Bash(grep -rn \"Content-Security-Policy\\\\|http-equiv\\\\|img-src\\\\|csp\" apps/frontend/index.html apps/backend/app/main.py)",
+      "Bash(sed -n '1,20p' apps/frontend/index.html)",
+      "Bash(node -e ' *)",
+      "Bash(npm run *)",
+      "Bash(python -c ' *)",
+      "Bash(timeout 120 ./venv/Scripts/python.exe -m pip install --upgrade \"Pillow>=11.2\")",
+      "Bash(./venv/Scripts/python.exe -c ' *)",
+      "Bash(rm -f uploads/48f24ee1bf59437698733c1c70054858.jpg uploads/_test_convert.jpg)",
+      "Bash(./venv/Scripts/python.exe -c \"import app.api.routes.media; print\\('media route imports OK with Pillow'\\)\")",
+      "Bash(python -c \"import PIL,sys; print\\(sys.executable\\); print\\('Pillow', PIL.__version__\\); from PIL import features; print\\('avif:', features.check\\('avif'\\)\\)\")",
+      "Bash(timeout 150 python -m pip install --upgrade \"Pillow>=11.2\")",
+      "Bash(python -c \"import PIL; from PIL import features; print\\('Pillow', PIL.__version__, '| avif:', features.check\\('avif'\\)\\)\")",
+      "Bash(python -c \"import app.main; from app.api.routes.media import _save_upload; print\\('backend + media conversion import OK'\\)\")",
+      "Bash(awk '{print $6, $7, $8, $9}')",
+      "Bash(curl -s -o /dev/null -w \"backend /api/health-ish: %{http_code}\\\\n\" \"http://localhost:5000/api/dashboard/summary\")",
+      "Bash(cd \"d:/Projects/TempleManagement/apps/frontend\")",
+      "Bash(ls -t dist/assets/*.js)",
+      "Bash(ls -la uploads/*.jpg uploads/*.png uploads/*.avif)",
+      "Bash(find /d/Projects/TempleManagement -type d -name uploads)"
     ]
   }
 }

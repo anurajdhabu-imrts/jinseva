@@ -60,7 +60,7 @@ def create_category(body: ExpenseCategoryCreate, db: Session = Depends(get_db)):
     cat = ExpenseCategory(
         name=body.name.strip(),
         description=body.description,
-        color=body.color or "#c8102e",
+        color=body.color or "#FF9644",
         monthly_budget=body.monthlyBudget,
     )
     db.add(cat)

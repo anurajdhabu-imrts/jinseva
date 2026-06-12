@@ -145,9 +145,23 @@ def update_event(code: str, body: EventUpdate, db: Session = Depends(get_db)):
         "budget": "budget", "description": "description", "image": "image",
     }
     data = body.model_dump(exclude_unset=True)
+    
+    # DEBUG: Log incoming request
+    print(f"\n=== DEBUG UPDATE_EVENT ===")
+    print(f"Event code: {code}")
+    print(f"Fields in request: {list(data.keys())}")
+    print(f"Image in request: {'image' in data}")
+    if 'image' in data:
+        img_len = len(data['image']) if data['image'] else 0
+        print(f"Image length: {img_len} bytes")
+        print(f"Image starts with: {data['image'][:50] if data['image'] else 'None'}")
+    
     for field, attr in mapping.items():
         if field in data:
-            setattr(event, attr, data[field])
+            old_val = getattr(event, attr, None)
+            new_val = data[field]
+            print(f"Setting {attr}: {str(old_val)[:30]}... -> {str(new_val)[:30]}...")
+            setattr(event, attr, new_val)
     if "date" in data:
         event.event_date = data["date"]
     if "time" in data:

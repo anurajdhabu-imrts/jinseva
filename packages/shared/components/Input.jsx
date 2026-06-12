@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import { cn } from '../utils/cn';
 
 const Input = forwardRef(function Input(
-  { label, icon: Icon, error, hint, className = '', containerClassName = '', type = 'text', ...props },
+  { label, icon: Icon, trailing, error, hint, className = '', containerClassName = '', type = 'text', ...props },
   ref
 ) {
   return (
@@ -27,11 +27,17 @@ const Input = forwardRef(function Input(
             'focus:outline-none focus:ring-2 focus:ring-saffron-500/40 focus:border-saffron-500',
             'transition-all duration-200',
             Icon && 'pl-10',
+            trailing && 'pr-10',
             error && 'border-rose-500 focus:ring-rose-500/30 focus:border-rose-500',
             className
           )}
           {...props}
         />
+        {trailing && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+            {trailing}
+          </div>
+        )}
       </div>
       {error && <p className="text-xs text-rose-600 mt-1.5">{error}</p>}
       {hint && !error && <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1.5">{hint}</p>}

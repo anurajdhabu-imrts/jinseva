@@ -6,6 +6,7 @@ from app.models.event import Event, EventDonation, EventExpense
 from app.models.expense import Expense, ExpenseCategory
 from app.models.income import Income
 from app.models.inventory import InventoryItem, Supplier
+from app.models.lookup import Lookup
 from app.models.media import Media
 from app.models.role import Role
 from app.models.staff import Attendance, Staff, Volunteer
@@ -21,5 +22,6 @@ __all__ = [
     "Staff", "Volunteer", "Attendance",
     "Announcement", "MessageTemplate",
     "Media",
+    "Lookup",
     "ContactMessage",
 ]

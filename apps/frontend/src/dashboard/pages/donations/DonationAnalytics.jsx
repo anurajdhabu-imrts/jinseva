@@ -9,7 +9,7 @@ import { useToast } from '@context/ToastContext';
 import { donationsApi, apiError } from '@services/rbacService';
 import { formatCurrency } from '@utils/constants';
 
-const PALETTE = ['#ffc01e', '#c8102e', '#00843d', '#1a1b22', '#d68500', '#054624'];
+const PALETTE = ['#FF9644', '#562F00', '#FFCE99', '#562F00', '#562F00', '#562F00'];
 
 export default function DonationAnalytics() {
   const { toast } = useToast();
@@ -71,15 +71,15 @@ export default function DonationAnalytics() {
                 <AreaChart data={monthly}>
                   <defs>
                     <linearGradient id="dnArea" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#ffc01e" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="#ffc01e" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#FF9644" stopOpacity={0.45} />
+                      <stop offset="100%" stopColor="#FF9644" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" />
-                  <XAxis dataKey="month" stroke="#94a3b8" />
-                  <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v / 1000}k`} />
+                  <XAxis dataKey="month" stroke="#562F00" />
+                  <YAxis stroke="#562F00" tickFormatter={(v) => `${v / 1000}k`} />
                   <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v) => formatCurrency(v)} />
-                  <Area type="monotone" dataKey="income" stroke="#ffc01e" strokeWidth={3} fill="url(#dnArea)" />
+                  <Area type="monotone" dataKey="income" stroke="#FF9644" strokeWidth={3} fill="url(#dnArea)" />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -121,8 +121,8 @@ export default function DonationAnalytics() {
               <ResponsiveContainer>
                 <BarChart data={byType} layout="vertical">
                   <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" horizontal={false} />
-                  <XAxis type="number" stroke="#94a3b8" tickFormatter={(v) => `${v / 1000}k`} />
-                  <YAxis dataKey="name" type="category" stroke="#94a3b8" width={90} />
+                  <XAxis type="number" stroke="#562F00" tickFormatter={(v) => `${v / 1000}k`} />
+                  <YAxis dataKey="name" type="category" stroke="#562F00" width={90} />
                   <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v) => formatCurrency(v)} />
                   <Bar dataKey="value" radius={[0, 10, 10, 0]}>
                     {byType.map((c, i) => <Cell key={i} fill={c.color} />)}

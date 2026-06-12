@@ -57,15 +57,15 @@ export default function RevenueAnalytics() {
               <AreaChart data={d.monthly}>
                 <defs>
                   <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ffc01e" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="#ffc01e" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#FF9644" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="#FF9644" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" />
-                <XAxis dataKey="month" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v/1000}k`} />
+                <XAxis dataKey="month" stroke="#562F00" />
+                <YAxis stroke="#562F00" tickFormatter={(v) => `${v/1000}k`} />
                 <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v) => formatCurrency(v)} />
-                <Area type="monotone" dataKey="income" stroke="#ffc01e" strokeWidth={3} fill="url(#rev)" />
+                <Area type="monotone" dataKey="income" stroke="#FF9644" strokeWidth={3} fill="url(#rev)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

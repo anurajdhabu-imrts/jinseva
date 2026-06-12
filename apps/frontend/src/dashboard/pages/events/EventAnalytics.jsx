@@ -62,10 +62,10 @@ export default function EventAnalytics() {
                 <ResponsiveContainer>
                   <BarChart data={byEvent}>
                     <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" vertical={false} />
-                    <XAxis dataKey="event" stroke="#94a3b8" fontSize={11} interval={0} angle={-15} textAnchor="end" height={60} />
-                    <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `${v / 1000}k`} />
+                    <XAxis dataKey="event" stroke="#562F00" fontSize={11} interval={0} angle={-15} textAnchor="end" height={60} />
+                    <YAxis stroke="#562F00" fontSize={12} tickFormatter={(v) => `${v / 1000}k`} />
                     <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v) => formatCurrency(v)} />
-                    <Bar dataKey="revenue" name="Raised" fill="#ffc01e" radius={[10, 10, 0, 0]} />
+                    <Bar dataKey="revenue" name="Raised" fill="#FF9644" radius={[10, 10, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -79,10 +79,10 @@ export default function EventAnalytics() {
                 <ResponsiveContainer>
                   <LineChart data={byEvent}>
                     <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" vertical={false} />
-                    <XAxis dataKey="event" stroke="#94a3b8" fontSize={11} interval={0} angle={-15} textAnchor="end" height={60} />
-                    <YAxis stroke="#94a3b8" fontSize={12} />
+                    <XAxis dataKey="event" stroke="#562F00" fontSize={11} interval={0} angle={-15} textAnchor="end" height={60} />
+                    <YAxis stroke="#562F00" fontSize={12} />
                     <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} />
-                    <Line type="monotone" dataKey="attendees" name="Attendees" stroke="#c8102e" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 7 }} />
+                    <Line type="monotone" dataKey="attendees" name="Attendees" stroke="#562F00" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 7 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

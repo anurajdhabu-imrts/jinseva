@@ -7,11 +7,15 @@ import Input, { Select, Textarea, Checkbox } from '@components/Input';
 import Button from '@components/Button';
 import { DONATION_TYPES, PAYMENT_METHODS, PROPERTY_CATEGORIES, formatCurrency } from '@utils/constants';
 import { useToast } from '@context/ToastContext';
+import { useLookups } from '@context/LookupContext';
 import { donationsApi, apiError } from '@services/rbacService';
 
 const quickAmounts = [501, 1001, 2100, 5100, 11000, 25000];
 
 export default function AddDonation() {
+  const purposes = useLookups('donation_purpose', DONATION_TYPES);
+  const properties = useLookups('property', PROPERTY_CATEGORIES);
+  const methods = useLookups('payment_method', PAYMENT_METHODS);
   const [form, setForm] = useState({
     donor: '', email: '', phone: '', type: DONATION_TYPES[0], property: PROPERTY_CATEGORIES[0],
     amount: '', method: PAYMENT_METHODS[0], purpose: '', anonymous: false, sendReceipt: true,
@@ -81,8 +85,8 @@ export default function AddDonation() {
           <Card>
             <CardHeader title="Donation Details" />
             <CardBody className="space-y-4">
-              <Select label="Purpose" options={DONATION_TYPES} value={form.type} onChange={(e) => update('type', e.target.value)} />
-              <Select label="Property / Place" options={PROPERTY_CATEGORIES} value={form.property} onChange={(e) => update('property', e.target.value)} />
+              <Select label="Purpose" options={purposes} value={form.type} onChange={(e) => update('type', e.target.value)} />
+              <Select label="Property / Place" options={properties} value={form.property} onChange={(e) => update('property', e.target.value)} />
               <div>
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Amount</label>
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">
@@ -103,7 +107,7 @@ export default function AddDonation() {
                 </div>
                 <Input icon={IndianRupee} type="number" placeholder="Enter custom amount" value={form.amount} onChange={(e) => update('amount', e.target.value)} required />
               </div>
-              <Select label="Payment Method" options={PAYMENT_METHODS} value={form.method} onChange={(e) => update('method', e.target.value)} />
+              <Select label="Payment Method" options={methods} value={form.method} onChange={(e) => update('method', e.target.value)} />
               <Textarea label="Notes / Purpose" placeholder="Special prayer, dedication, occasion…" value={form.purpose} onChange={(e) => update('purpose', e.target.value)} />
             </CardBody>
           </Card>

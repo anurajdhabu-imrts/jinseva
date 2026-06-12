@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { Save, X, ArrowLeft, Calendar, Clock, MapPin, Users, Wallet } from 'lucide-react';
+import { Save, X, ArrowLeft, Calendar, MapPin, Users, Wallet } from 'lucide-react';
 import PageHeader from '@components/PageHeader';
 import Card, { CardBody, CardHeader } from '@components/Card';
 import Input, { Select, Textarea, Checkbox } from '@components/Input';
+import ClockTimePicker from '@components/ClockTimePicker';
 import Button from '@components/Button';
 import ImageUpload from '@dashboard/components/widgets/ImageUpload';
 import { useToast } from '@context/ToastContext';
+import { useLookups } from '@context/LookupContext';
 import { eventsApi, apiError } from '@services/rbacService';
-import { EVENT_CATEGORIES } from '@utils/constants';
+import { EVENT_CATEGORIES, EVENT_TYPES } from '@utils/constants';
 
+// Fallback used before the admin-managed list loads. Includes legacy types that
+// existing events may still hold so the Select shows their current value.
 const TYPE_OPTIONS = ['Festival', 'Pooja', 'Mahaparva', 'Janma Kalyanak', 'Tapasya', 'Discourse', 'Seva', 'Community'];
 const STATUS_OPTIONS = [
   { value: 'upcoming', label: 'Upcoming' },
@@ -20,11 +24,17 @@ const STATUS_OPTIONS = [
 
 export default function EventEdit() {
   const { id } = useParams();
+  const eventTypes = useLookups('event_type', EVENT_TYPES.length ? [...new Set([...EVENT_TYPES, ...TYPE_OPTIONS])] : TYPE_OPTIONS);
+  const properties = useLookups('property', EVENT_CATEGORIES);
   const nav = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [imgUploading, setImgUploading] = useState(false);
   const [form, setForm] = useState(null);
+  // Always-current image URL + the in-flight upload, so Save never races it.
+  const imageRef = useRef('');
+  const pendingUploadRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +58,7 @@ export default function EventEdit() {
           image: ev.image ?? '',
           allowDonations: ev.allowDonations ?? true,
         });
+        imageRef.current = ev.image ?? '';
       } catch (err) {
         toast.error(apiError(err));
         nav('/events');
@@ -70,6 +81,21 @@ export default function EventEdit() {
     }
     setSaving(true);
     try {
+      // Bulletproof against the upload race: if an image is still uploading,
+      // wait for it so we save the new URL, not the old/blank one.
+      if (pendingUploadRef.current) {
+        try { await pendingUploadRef.current; } catch { /* error already toasted */ }
+      }
+      
+      // DEBUG: Log what we're about to send
+      const imageToSend = imageRef.current;
+      console.log('DEBUG: Submitting event with image:', {
+        hasImage: !!imageToSend,
+        imageLength: imageToSend ? imageToSend.length : 0,
+        formImageLength: form.image ? form.image.length : 0,
+        imageRef: imageToSend ? imageToSend.substring(0, 50) + '...' : 'empty'
+      });
+      
       await eventsApi.update(id, {
         title: form.title.trim(),
         type: form.type,
@@ -83,7 +109,7 @@ export default function EventEdit() {
         attendees: Number(form.attendees) || 0,
         budget: Number(form.budget) || 0,
         description: form.description,
-        image: form.image,
+        image: imageToSend,
         allowDonations: form.allowDonations,
       });
       toast.success('Event updated.');
@@ -117,8 +143,8 @@ export default function EventEdit() {
             <CardBody className="space-y-4">
               <Input label="Event Title" value={form.title} onChange={(e) => update('title', e.target.value)} required />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Select label="Property / Place" value={form.category} onChange={(e) => update('category', e.target.value)} options={[{ value: '', label: 'Select place…' }, ...EVENT_CATEGORIES.map((c) => ({ value: c, label: c }))]} />
-                <Select label="Event Type" value={form.type} onChange={(e) => update('type', e.target.value)} options={TYPE_OPTIONS} />
+                <Select label="Property / Place" value={form.category} onChange={(e) => update('category', e.target.value)} options={[{ value: '', label: 'Select place…' }, ...properties.map((c) => ({ value: c, label: c }))]} />
+                <Select label="Event Type" value={form.type} onChange={(e) => update('type', e.target.value)} options={eventTypes} />
               </div>
               <Input label="Organizer" value={form.organizer} onChange={(e) => update('organizer', e.target.value)} placeholder="Festival committee" />
               <Textarea label="Description" rows={4} value={form.description} onChange={(e) => update('description', e.target.value)} placeholder="Tell devotees about this event…" />
@@ -130,8 +156,8 @@ export default function EventEdit() {
             <CardBody className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input label="Date" icon={Calendar} type="date" value={form.date} onChange={(e) => update('date', e.target.value)} required />
-                <Input label="Start time" icon={Clock} type="time" value={form.time} onChange={(e) => update('time', e.target.value)} />
-                <Input label="End time" icon={Clock} type="time" value={form.endTime} onChange={(e) => update('endTime', e.target.value)} />
+                <ClockTimePicker label="Start time" value={form.time} onChange={(v) => update('time', v)} />
+                <ClockTimePicker label="End time" value={form.endTime} onChange={(v) => update('endTime', v)} />
               </div>
               <Input label="Venue / Location" icon={MapPin} value={form.location} onChange={(e) => update('location', e.target.value)} placeholder="Main temple complex" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -147,14 +173,26 @@ export default function EventEdit() {
             <CardHeader title="Status & Options" />
             <CardBody className="space-y-4">
               <Select label="Status" value={form.status} onChange={(e) => update('status', e.target.value)} options={STATUS_OPTIONS} />
-              <ImageUpload value={form.image} onChange={(url) => update('image', url)} label="Banner image" />
+              <ImageUpload
+                value={imageRef.current || form.image}
+                onChange={(url) => { 
+                  imageRef.current = url; 
+                  update('image', url); 
+                  console.log('Image updated:', url.substring(0, 50) + '...');
+                }}
+                onUploadingChange={setImgUploading}
+                onPending={(p) => { pendingUploadRef.current = p; }}
+                label="Banner image"
+              />
               <Checkbox label="Accept donations for this event" checked={form.allowDonations} onChange={(e) => update('allowDonations', e.target.checked)} />
             </CardBody>
           </Card>
 
           <Card>
             <CardBody className="space-y-2">
-              <Button type="submit" fullWidth icon={Save} loading={saving}>Save Changes</Button>
+              <Button type="submit" fullWidth icon={Save} loading={saving} disabled={imgUploading}>
+                {imgUploading ? 'Uploading image…' : 'Save Changes'}
+              </Button>
               <Button type="button" variant="ghost" fullWidth icon={X} onClick={() => nav(`/events/${id}`)}>Cancel</Button>
             </CardBody>
           </Card>

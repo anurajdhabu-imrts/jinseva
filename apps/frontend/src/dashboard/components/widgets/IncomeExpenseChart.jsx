@@ -14,17 +14,17 @@ export default function IncomeExpenseChart({ data = [] }) {
             <AreaChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -10 }}>
               <defs>
                 <linearGradient id="inc" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stopColor="#ffc01e" stopOpacity={0.45} />
-                  <stop offset="100%" stopColor="#ffc01e" stopOpacity={0} />
+                  <stop offset="0%"  stopColor="#FF9644" stopOpacity={0.45} />
+                  <stop offset="100%" stopColor="#FF9644" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="exp" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stopColor="#c8102e" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#c8102e" stopOpacity={0} />
+                  <stop offset="0%"  stopColor="#562F00" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#562F00" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" />
-              <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-              <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `${v/1000}k`} />
+              <XAxis dataKey="month" stroke="#562F00" fontSize={12} />
+              <YAxis stroke="#562F00" fontSize={12} tickFormatter={(v) => `${v/1000}k`} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: 'rgba(30,27,24,0.95)',
@@ -36,8 +36,8 @@ export default function IncomeExpenseChart({ data = [] }) {
                 formatter={(v) => `₹${Number(v).toLocaleString('en-IN')}`}
               />
               <Legend iconType="circle" wrapperStyle={{ paddingTop: 10, fontSize: 12 }} />
-              <Area type="monotone" dataKey="income"  name="Income"  stroke="#ffc01e" strokeWidth={2.5} fill="url(#inc)" />
-              <Area type="monotone" dataKey="expense" name="Expense" stroke="#c8102e" strokeWidth={2.5} fill="url(#exp)" />
+              <Area type="monotone" dataKey="income"  name="Income"  stroke="#FF9644" strokeWidth={2.5} fill="url(#inc)" />
+              <Area type="monotone" dataKey="expense" name="Expense" stroke="#562F00" strokeWidth={2.5} fill="url(#exp)" />
             </AreaChart>
           </ResponsiveContainer>
           )}

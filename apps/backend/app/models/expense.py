@@ -12,7 +12,7 @@ class ExpenseCategory(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), unique=True, index=True, nullable=False)
     description: Mapped[str] = mapped_column(String(300), default="", nullable=False)
-    color: Mapped[str] = mapped_column(String(20), default="#c8102e", nullable=False)
+    color: Mapped[str] = mapped_column(String(20), default="#FF9644", nullable=False)
     monthly_budget: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

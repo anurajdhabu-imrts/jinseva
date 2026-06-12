@@ -3,8 +3,8 @@ import { cn } from '../utils/cn';
 
 export default function SearchBar({ value, onChange, placeholder = 'Search…', className = '' }) {
   return (
-    <div className={cn('relative w-full', className)}>
-      <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+    <div className={cn('relative w-full flex items-center', className)}>
+      <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
       <input
         value={value || ''}
         onChange={(e) => onChange?.(e.target.value)}

@@ -118,7 +118,7 @@ export default function Announcement() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               <Textarea label="Message" rows={6} placeholder="Share details with devotees…" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required />
-              <ImageUpload label="Image (optional)" value={form.image} onChange={(url) => setForm({ ...form, image: url })} hint="Attach a banner/poster — PNG, JPG, WebP" />
+              <ImageUpload label="Image (optional)" value={form.image} onChange={(url) => setForm({ ...form, image: url })} hint="Attach a banner/poster — any image format" />
               </div>
               <Select label="Audience" icon={Users} options={audiences} value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })} />
 

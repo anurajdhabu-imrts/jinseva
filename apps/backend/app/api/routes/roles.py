@@ -78,7 +78,7 @@ def create_role(body: RoleCreate, db: Session = Depends(get_db)):
         key=generate_role_key(db, body.name),
         name=body.name,
         description=body.description or "",
-        color=body.color or "#c8102e",
+        color=body.color or "#FF9644",
         system=False,
         permission_ids=body.permissionIds,
     )

@@ -93,6 +93,7 @@ import MediaUpload  from '@dashboard/pages/media/MediaUpload';
 
 // ── Settings ──
 import TempleInfo from '@dashboard/pages/settings/TempleInfo';
+import DropdownOptions from '@dashboard/pages/settings/DropdownOptions';
 import UserRoles  from '@dashboard/pages/settings/UserRoles';
 import RoleEdit   from '@dashboard/pages/settings/RoleEdit';
 import Users      from '@dashboard/pages/settings/Users';
@@ -197,6 +198,7 @@ export default function AppRoutes() {
 
         {/* Settings */}
         <Route path="/settings"            element={<TempleInfo />} />
+        <Route path="/settings/options"    element={<DropdownOptions />} />
         <Route path="/settings/roles"      element={<UserRoles />} />
         <Route path="/settings/roles/new"  element={<RoleEdit />} />
         <Route path="/settings/roles/:id"  element={<RoleEdit />} />

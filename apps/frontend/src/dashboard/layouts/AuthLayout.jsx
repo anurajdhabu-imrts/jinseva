@@ -3,16 +3,13 @@ import { motion } from 'framer-motion';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@context/ThemeContext';
 import { APP_NAME, APP_TAGLINE } from '@utils/constants';
-import JainFlagStripe, { JainFlagBadge } from '@web/components/JainFlagStripe';
+import { JainFlagBadge } from '@web/components/JainFlagStripe';
 
 export default function AuthLayout() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-jain-black-950">
-      {/* Jain flag identity ribbon */}
-      <JainFlagStripe height="h-1" />
-
+    <div className="dashboard-theme min-h-screen flex flex-col bg-white dark:bg-jain-black-950">
       <div className="flex-1 flex">
         {/* Left side - solid Jain red brand panel */}
         <div className="hidden lg:flex flex-col w-1/2 relative overflow-hidden bg-jain-red-600">

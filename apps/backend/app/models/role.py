@@ -16,7 +16,7 @@ class Role(Base):
     key: Mapped[str] = mapped_column(String(80), unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     description: Mapped[str] = mapped_column(String(500), default="", nullable=False)
-    color: Mapped[str] = mapped_column(String(20), default="#c8102e", nullable=False)
+    color: Mapped[str] = mapped_column(String(20), default="#FF9644", nullable=False)
     # True => built-in role that cannot be deleted.
     system: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Permission codes ("<module>.<action>") this role grants.

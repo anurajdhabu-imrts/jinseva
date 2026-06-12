@@ -54,6 +54,16 @@ export default function Login() {
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           required
+          trailing={
+            <button
+              type="button"
+              onClick={() => setShowPwd((v) => !v)}
+              aria-label={showPwd ? 'Hide password' : 'Show password'}
+              className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors focus:outline-none"
+            >
+              {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          }
         />
         <div className="flex items-center justify-between">
           <Checkbox label="Remember me" defaultChecked />

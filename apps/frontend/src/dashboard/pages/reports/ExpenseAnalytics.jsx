@@ -76,10 +76,10 @@ export default function ExpenseAnalytics() {
               <ResponsiveContainer>
                 <BarChart data={d.monthly}>
                   <CartesianGrid strokeDasharray="3 6" stroke="rgba(120,120,120,0.15)" vertical={false} />
-                  <XAxis dataKey="month" stroke="#94a3b8" />
-                  <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v/1000}k`} />
+                  <XAxis dataKey="month" stroke="#562F00" />
+                  <YAxis stroke="#562F00" tickFormatter={(v) => `${v/1000}k`} />
                   <Tooltip contentStyle={{ backgroundColor: 'rgba(30,27,24,0.95)', border: 'none', borderRadius: 12, color: '#fff' }} formatter={(v) => formatCurrency(v)} />
-                  <Bar dataKey="expense" fill="#c8102e" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="expense" fill="#562F00" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

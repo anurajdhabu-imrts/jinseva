@@ -13,79 +13,37 @@
 //  component renders in the Jain palette automatically.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //
-const jainYellow = {
-  50:  '#fffae6',
-  100: '#fff3c2',
-  200: '#ffe488',
-  300: '#ffd14a',
-  400: '#ffc01e',
-  500: '#f5a800',
-  600: '#d68500',
-  700: '#a85f02',
-  800: '#8a4a09',
-  900: '#743d0e',
-  950: '#43200a',
-  DEFAULT: '#ffc01e',
+// ── Tokens are CSS-variable based so a scope (e.g. `.dashboard-theme`) can
+//    repaint the whole UI by overriding the channel variables in index.css.
+//    Global variable values keep the original Jain flag palette, so the public
+//    website is unchanged; the dashboard overrides them to a warm palette.
+const SH = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+const ramp = (prefix, shades = SH, def) => {
+  const o = Object.fromEntries(
+    shades.map((s) => [s, `rgb(var(--${prefix}-${s}) / <alpha-value>)`]),
+  );
+  if (def != null) o.DEFAULT = `rgb(var(--${prefix}-${def}) / <alpha-value>)`;
+  return o;
 };
+const SH10 = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 
-const jainRed = {
-  50:  '#fdf2f3',
-  100: '#fce4e6',
-  200: '#fac6cc',
-  300: '#f59ba6',
-  400: '#ed677b',
-  500: '#de3a55',
-  600: '#c8102e',
-  700: '#a90e26',
-  800: '#8b0e22',
-  900: '#761120',
-  950: '#420610',
-  DEFAULT: '#c8102e',
-};
-
-const jainGreen = {
-  50:  '#f0f9f3',
-  100: '#dcf0e2',
-  200: '#bbe1c9',
-  300: '#8bc9a5',
-  400: '#59ab7d',
-  500: '#2c8d5d',
-  600: '#00843d',
-  700: '#016b34',
-  800: '#04552c',
-  900: '#054624',
-  950: '#022614',
-  DEFAULT: '#00843d',
-};
-
-const jainBlack = {
-  50:  '#f5f5f6',
-  100: '#e6e6e8',
-  200: '#cccdd1',
-  300: '#a8a9b0',
-  400: '#7d7e88',
-  500: '#5d5e6a',
-  600: '#494a55',
-  700: '#3c3d46',
-  800: '#34353d',
-  900: '#1a1b22',
-  950: '#0a0b0f',
-  DEFAULT: '#1a1b22',
-};
-
-const jainWhite = {
-  50:  '#ffffff',
-  100: '#fdfcfa',
-  200: '#faf6ee',
-  300: '#f5ecd9',
-  400: '#ecdcb8',
-  500: '#dfc78b',
-  600: '#c9ab5d',
-  700: '#a08749',
-  800: '#7e6b3e',
-  900: '#5e5031',
-  DEFAULT: '#ffffff',
-};
+const jainYellow = ramp('jy', SH, 400);
+const jainRed    = ramp('jr', SH, 600);
+const jainGreen  = ramp('jg', SH, 600);
+const jainBlack  = ramp('jk', SH, 900);
+const jainWhite  = ramp('jw', SH10, 50);
+const sandRamp   = ramp('sd', SH10);
+const neutralRamp = ramp('nt', SH);
+const roseRamp    = ramp('rs', SH);
+// Remaining Tailwind-default families used by dashboard badges/charts — made
+// themeable so the dashboard scope collapses them into the warm palette.
+const emeraldRamp = ramp('em', SH);
+const amberRamp   = ramp('am', SH);
+const skyRamp     = ramp('sk', SH);
+const violetRamp  = ramp('vi', SH);
+const tealRamp    = ramp('tl', SH);
+const pinkRamp    = ramp('pk', SH);
+const orangeRamp  = ramp('or', SH);
 
 export default {
   content: [
@@ -120,18 +78,22 @@ export default {
         cream:      jainWhite,
 
         // Sandalwood neutral kept for warm accents
-        sand: {
-          50:  '#faf8f3',
-          100: '#f3eee0',
-          200: '#e6dabf',
-          300: '#d6c197',
-          400: '#c6a571',
-          500: '#bb9059',
-          600: '#ae7d4d',
-          700: '#906441',
-          800: '#76513a',
-          900: '#624431',
-        },
+        sand: sandRamp,
+
+        // Tailwind defaults made themeable so the dashboard scope can warm
+        // body text, badges, charts and destructive actions. Global values
+        // match Tailwind's originals, so the public site is unaffected.
+        neutral: neutralRamp,
+        rose:    roseRamp,
+        emerald: emeraldRamp,
+        amber:   amberRamp,
+        sky:     skyRamp,
+        violet:  violetRamp,
+        teal:    tealRamp,
+        pink:    pinkRamp,
+        orange:  orangeRamp,
+        // White surfaces become cream inside `.dashboard-theme`.
+        white:   'rgb(var(--wt) / <alpha-value>)',
 
         primary: jainYellow,
       },
